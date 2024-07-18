@@ -1,4 +1,4 @@
-package com.ardondev.tiendita.ui.theme
+package com.ardondev.tiendita.presentation.theme
 
 import android.app.Activity
 import android.os.Build
