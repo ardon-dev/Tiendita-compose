@@ -1,5 +1,6 @@
 package com.ardondev.tiendita.domain.usecase.products
 
+import android.database.sqlite.SQLiteConstraintException
 import com.ardondev.tiendita.domain.model.Product
 import com.ardondev.tiendita.domain.repository.ProductRepository
 import java.io.IOException
@@ -14,6 +15,10 @@ class InsertProductUseCase @Inject constructor(
             val result = productRepository.insert(product)
             return Result.success(result)
         } catch (e: IOException) {
+            return Result.failure(e)
+        } catch (e: SQLiteConstraintException) {
+            return Result.failure(e)
+        } catch (e: Exception) {
             return Result.failure(e)
         }
     }
