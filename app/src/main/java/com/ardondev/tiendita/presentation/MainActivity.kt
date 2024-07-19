@@ -4,20 +4,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
+import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.ardondev.tiendita.presentation.home.HomeScreen
+import com.ardondev.tiendita.presentation.products.ProductsScreen
+import com.ardondev.tiendita.presentation.products.ProductsViewModel
 import com.ardondev.tiendita.presentation.theme.TienditaTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val productsViewModel: ProductsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,9 +23,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             TienditaTheme {
-                HomeScreen(
-                    items = listOf("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-                )
+                ProductsScreen(productsViewModel)
             }
         }
 
@@ -36,9 +32,7 @@ class MainActivity : ComponentActivity() {
     @Preview
     @Composable
     fun MainPreview() {
-        HomeScreen(
-            items = listOf("", "", "", "", "", "")
-        )
+        ProductsScreen(productsViewModel)
     }
 
 }

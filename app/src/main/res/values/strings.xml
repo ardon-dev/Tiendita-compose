@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Tiendita</string>
+    <string name="txt_no_products">No tienes productos</string>
 </resources>
