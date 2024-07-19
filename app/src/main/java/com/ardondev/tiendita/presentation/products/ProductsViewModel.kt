@@ -28,8 +28,8 @@ class ProductsViewModel @Inject constructor(
     private val _insertProductResult = SingleLiveEvent<Long?>()
     val insertProductResult: LiveData<Long?> = _insertProductResult
 
-    private val _insertProductError = SingleLiveEvent<Throwable?>()
-    val insertProductError: LiveData<Throwable?> = _insertProductError
+    private val _insertProductError = SingleLiveEvent<String?>()
+    val insertProductError: LiveData<String?> = _insertProductError
 
     fun insertProduct(product: Product) {
         viewModelScope.launch {
@@ -37,7 +37,7 @@ class ProductsViewModel @Inject constructor(
             if (result.isSuccess) {
                 _insertProductResult.value = result.getOrNull()
             } else {
-                _insertProductError.value = result.exceptionOrNull()
+                _insertProductError.value = result.exceptionOrNull()?.message
             }
         }
     }

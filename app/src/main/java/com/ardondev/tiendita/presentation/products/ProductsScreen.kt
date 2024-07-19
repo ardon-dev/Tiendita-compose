@@ -16,10 +16,16 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -32,6 +38,8 @@ import com.ardondev.tiendita.R
 import com.ardondev.tiendita.domain.model.Product
 import com.ardondev.tiendita.presentation.util.ErrorView
 import com.ardondev.tiendita.presentation.util.LoadingView
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
@@ -54,6 +62,8 @@ fun ProductsScreen(
 ) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val scope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
 
     val uiState by produceState<ProductsUiState>(
         initialValue = ProductsUiState.Loading,
@@ -65,6 +75,8 @@ fun ProductsScreen(
         }
     }
 
+    /** Products **/
+
     Scaffold(
         //ADD FAB
         floatingActionButton = {
@@ -73,8 +85,11 @@ fun ProductsScreen(
                     viewModel.insertProduct(Product(null, "Piruleta", 10, 0.10))
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { innerPadding ->
+
+        /** Handle results **/
 
         //CONTENT
         when (uiState) {
@@ -101,7 +116,26 @@ fun ProductsScreen(
         }
     }
 
+    /** Events: Insert product **/
+
+    val insertResultState = viewModel.insertProductResult.observeAsState()
+    val insertErrorState = viewModel.insertProductError.observeAsState()
+
+    LaunchedEffect(insertResultState.value) {
+        insertResultState.value?.let { id ->
+            scope.launch { snackBarHostState.showSnackbar("Inserted: $id") }
+        }
+    }
+
+    LaunchedEffect(insertErrorState.value) {
+        insertErrorState.value?.let { message ->
+            scope.launch { snackBarHostState.showSnackbar(message) }
+        }
+    }
+
 }
+
+/** Components **/
 
 @Composable
 fun ProductList(
@@ -120,13 +154,13 @@ fun ProductList(
             )
     ) {
         items(products) { p ->
-            ProductItem()
+            ProductItem(p)
         }
     }
 }
 
 @Composable
-fun ProductItem() {
+fun ProductItem(product: Product) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -150,9 +184,9 @@ fun ProductItem() {
                     .padding(start = 8.dp)
             ) {
                 //Product name
-                Text(text = "Product name")
+                Text(text = product.name)
                 //Product stock
-                Text(text = "Stock: 50")
+                Text(text = "Stock: ${product.stock}")
             }
 
         }
