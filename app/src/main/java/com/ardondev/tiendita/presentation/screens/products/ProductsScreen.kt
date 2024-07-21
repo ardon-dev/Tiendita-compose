@@ -1,5 +1,6 @@
-package com.ardondev.tiendita.presentation.products
+package com.ardondev.tiendita.presentation.screens.products
 
+import android.app.Dialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,32 +14,38 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.ardondev.tiendita.R
 import com.ardondev.tiendita.domain.model.Product
 import com.ardondev.tiendita.presentation.util.ErrorView
 import com.ardondev.tiendita.presentation.util.LoadingView
-import kotlinx.coroutines.coroutineScope
+import com.ardondev.tiendita.presentation.util.SingleEvent
 import kotlinx.coroutines.launch
 
 @Preview
@@ -56,14 +63,18 @@ fun HomeScreenPreview() {
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductsScreen(
-    viewModel: ProductsViewModel,
+    viewModel: ProductsViewModel = hiltViewModel(),
 ) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val loadingState by viewModel.loading.observeAsState()
 
     val uiState by produceState<ProductsUiState>(
         initialValue = ProductsUiState.Loading,
@@ -75,23 +86,44 @@ fun ProductsScreen(
         }
     }
 
+    /** Events **/
+
+    viewModel.insertProductResult.observe(
+        LocalLifecycleOwner.current,
+        SingleEvent.SingleEventObserver { id ->
+            id?.let {
+                scope.launch {
+                    snackBarHostState.showSnackbar("Inserted: $id")
+                }
+                showBottomSheet = false
+            }
+        })
+
+    viewModel.insertProductError.observe(
+        LocalLifecycleOwner.current,
+        SingleEvent.SingleEventObserver { error ->
+            error?.let {
+                scope.launch {
+                    snackBarHostState.showSnackbar(error)
+                }
+                showBottomSheet = false
+            }
+        })
+
     /** Products **/
 
     Scaffold(
         //ADD FAB
         floatingActionButton = {
             ProductsFAB(
-                onAdd = {
-                    viewModel.insertProduct(Product(null, "Piruleta", 10, 0.10))
-                }
+                onAdd = { showBottomSheet = true }
             )
         },
         snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { innerPadding ->
 
-        /** Handle results **/
+        /** PRODUCTS **/
 
-        //CONTENT
         when (uiState) {
             ProductsUiState.Loading -> {
                 LoadingView()
@@ -114,23 +146,33 @@ fun ProductsScreen(
                 }
             }
         }
-    }
 
-    /** Events: Insert product **/
+        /** ADD PRODUCT **/
 
-    val insertResultState = viewModel.insertProductResult.observeAsState()
-    val insertErrorState = viewModel.insertProductError.observeAsState()
-
-    LaunchedEffect(insertResultState.value) {
-        insertResultState.value?.let { id ->
-            scope.launch { snackBarHostState.showSnackbar("Inserted: $id") }
+        if (showBottomSheet) {
+            AddProductBottomSheet(
+                sheetState = sheetState,
+                onDismiss = {
+                    showBottomSheet = false
+                },
+                onInserted = { product ->
+                    viewModel.insertProduct(product)
+                }
+            )
         }
-    }
 
-    LaunchedEffect(insertErrorState.value) {
-        insertErrorState.value?.let { message ->
-            scope.launch { snackBarHostState.showSnackbar(message) }
+        if (loadingState == true) {
+            Dialog(
+                onDismissRequest = { /*TODO*/ },
+                properties = DialogProperties(
+                    dismissOnClickOutside = false,
+                    dismissOnBackPress = false
+                )
+            ) {
+                LoadingView()
+            }
         }
+
     }
 
 }
@@ -153,7 +195,10 @@ fun ProductList(
                 bottom = innerPadding.calculateBottomPadding()
             )
     ) {
-        items(products) { p ->
+        items(
+            items = products,
+            key = { it.id ?: -1 }
+        ) { p ->
             ProductItem(p)
         }
     }

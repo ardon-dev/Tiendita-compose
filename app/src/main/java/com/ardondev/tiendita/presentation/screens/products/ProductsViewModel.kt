@@ -1,13 +1,14 @@
-package com.ardondev.tiendita.presentation.products
+package com.ardondev.tiendita.presentation.screens.products
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ardondev.tiendita.domain.model.Product
 import com.ardondev.tiendita.domain.usecase.products.GetAllProductsUseCase
 import com.ardondev.tiendita.domain.usecase.products.InsertProductUseCase
-import com.ardondev.tiendita.presentation.products.ProductsUiState.Success
-import com.ardondev.tiendita.presentation.util.SingleLiveEvent
+import com.ardondev.tiendita.presentation.screens.products.ProductsUiState.Success
+import com.ardondev.tiendita.presentation.util.SingleEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,21 +24,27 @@ class ProductsViewModel @Inject constructor(
     getAllProductsUseCase: GetAllProductsUseCase,
 ) : ViewModel() {
 
+    private val _loading = MutableLiveData(false)
+    val loading: LiveData<Boolean> = _loading
+
     /** Insert product **/
 
-    private val _insertProductResult = SingleLiveEvent<Long?>()
-    val insertProductResult: LiveData<Long?> = _insertProductResult
+    private val _insertProductResult = MutableLiveData<SingleEvent<Long?>>()
+    val insertProductResult: LiveData<SingleEvent<Long?>> = _insertProductResult
 
-    private val _insertProductError = SingleLiveEvent<String?>()
-    val insertProductError: LiveData<String?> = _insertProductError
+    private val _insertProductError = MutableLiveData<SingleEvent<String?>>()
+    val insertProductError: LiveData<SingleEvent<String?>> = _insertProductError
 
     fun insertProduct(product: Product) {
         viewModelScope.launch {
+            _loading.value = true
             val result = insertProductUseCase(product)
             if (result.isSuccess) {
-                _insertProductResult.value = result.getOrNull()
+                _insertProductResult.value = SingleEvent(result.getOrNull())
+                _loading.value = false
             } else {
-                _insertProductError.value = result.exceptionOrNull()?.message
+                _insertProductError.value = SingleEvent(result.exceptionOrNull()?.message)
+                _loading.value = false
             }
         }
     }

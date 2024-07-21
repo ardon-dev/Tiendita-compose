@@ -1,4 +1,4 @@
-package com.ardondev.tiendita.presentation.products
+package com.ardondev.tiendita.presentation.screens.products
 
 import com.ardondev.tiendita.domain.model.Product
 

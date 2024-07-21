@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Tiendita</string>
     <string name="txt_no_products">No tienes productos</string>
+    <string name="txt_add_product">Agregar producto</string>
+    <string name="txt_name">Nombre</string>
+    <string name="txt_initial_stock">Stock inicial</string>
+    <string name="txt_price">Precio</string>
 </resources>

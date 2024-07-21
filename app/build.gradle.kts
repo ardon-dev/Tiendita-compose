@@ -25,11 +25,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -73,6 +74,7 @@ dependencies {
     // Dagger Hilt
     implementation(libs.dagger.hilt)
     kapt(libs.dagger.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 
     //Live data (Compose)
     implementation(libs.androidx.compose.livedata)
@@ -81,4 +83,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.extensions)
+
+    // Navigation (Compose)
+    implementation(libs.androidx.navigation.compose)
 }
