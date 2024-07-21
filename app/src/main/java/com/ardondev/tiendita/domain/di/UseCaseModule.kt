@@ -2,6 +2,7 @@ package com.ardondev.tiendita.domain.di
 
 import com.ardondev.tiendita.domain.repository.ProductRepository
 import com.ardondev.tiendita.domain.usecase.products.GetAllProductsUseCase
+import com.ardondev.tiendita.domain.usecase.products.GetProductByIdUseCase
 import com.ardondev.tiendita.domain.usecase.products.InsertProductUseCase
 import dagger.Module
 import dagger.Provides
@@ -25,6 +26,12 @@ class UseCaseModule {
     @Singleton
     fun provideGetAllProductsUseCase(productRepository: ProductRepository): GetAllProductsUseCase {
         return GetAllProductsUseCase(productRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetProductByIdUseCase(productRepository: ProductRepository): GetProductByIdUseCase {
+        return GetProductByIdUseCase(productRepository)
     }
 
 }
