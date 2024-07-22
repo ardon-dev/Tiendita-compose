@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -92,6 +93,21 @@ fun ProductDetailScreen(
             }
         })
 
+    viewModel.insertSaleResult.observe(
+        LocalLifecycleOwner.current,
+        SingleEvent.SingleEventObserver { id ->
+            id?.let { scope.launch { snackBarHostState.showSnackbar("Inserted: $id") } }
+        }
+    )
+
+    viewModel.insertSaleError.observe(
+        LocalLifecycleOwner.current,
+        SingleEvent.SingleEventObserver { error ->
+            error?.message?.let { message ->
+                scope.launch { snackBarHostState.showSnackbar(message) }
+            }
+        })
+
     /** Product detail **/
 
     Scaffold(
@@ -145,13 +161,7 @@ fun ProductDetailScreen(
                     )
 
                     //SELLS LIST
-                    else -> {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(Color.Red))
-
-                    }
+                    else -> SalesContent(viewModel)
                 }
             }
         }
@@ -162,7 +172,7 @@ fun ProductDetailScreen(
 @Composable
 fun ProductDetailContent(
     viewModel: ProductDetailViewModel,
-    uiState: ProductDetailUiState
+    uiState: ProductDetailUiState,
 ) {
     when (uiState) {
         is ProductDetailUiState.Error -> {
@@ -180,6 +190,21 @@ fun ProductDetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
             )
+        }
+    }
+}
+
+@Composable
+fun SalesContent(
+    viewModel: ProductDetailViewModel,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Button(onClick = {
+            viewModel.insertSale()
+        }) {
+            Text(text = "")
         }
     }
 }

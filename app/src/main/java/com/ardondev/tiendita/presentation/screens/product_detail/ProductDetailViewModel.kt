@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
@@ -13,8 +14,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ardondev.tiendita.domain.model.Product
+import com.ardondev.tiendita.domain.model.Sale
 import com.ardondev.tiendita.domain.usecase.products.GetProductByIdUseCase
 import com.ardondev.tiendita.domain.usecase.products.UpdateProductUseCase
+import com.ardondev.tiendita.domain.usecase.sales.InsertSaleUseCase
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,7 +32,8 @@ import javax.inject.Inject
 class ProductDetailViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     getProductByIdUseCase: GetProductByIdUseCase,
-    private val updateProductUseCase: UpdateProductUseCase
+    private val updateProductUseCase: UpdateProductUseCase,
+    private val insertSaleUseCase: InsertSaleUseCase
 ) : ViewModel() {
 
     /** Loading **/
@@ -71,7 +75,7 @@ class ProductDetailViewModel @Inject constructor(
 
     /** UI states **/
 
-    var tabPosition by mutableStateOf(0)
+    var tabPosition by mutableIntStateOf(0)
         private set
 
     fun setTabPositionValue(value: Int) {
@@ -142,6 +146,35 @@ class ProductDetailViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _updateProductError.value = SingleEvent(e)
+                loading = false
+            }
+        }
+    }
+
+    /** Insert sale **/
+
+    private val _insertSaleResult = MutableLiveData<SingleEvent<Long?>>()
+    val insertSaleResult: LiveData<SingleEvent<Long?>> = _insertSaleResult
+
+    private val _insertSaleError = MutableLiveData<SingleEvent<Throwable?>>()
+    val insertSaleError: LiveData<SingleEvent<Throwable?>> = _insertSaleError
+
+    fun insertSale() {
+        viewModelScope.launch {
+            loading = true
+            val sale = Sale(
+                id = null,
+                amount = product?.price ?: 0.0,
+                quantity = 1,
+                total = (product?.price ?: (0.0 * 1)),
+                productId = productId
+            )
+            val result = insertSaleUseCase(sale)
+            if (result.isSuccess) {
+                _insertSaleResult.value = SingleEvent(result.getOrNull())
+                loading = false
+            } else {
+                _insertSaleError.value = SingleEvent(result.exceptionOrNull())
                 loading = false
             }
         }

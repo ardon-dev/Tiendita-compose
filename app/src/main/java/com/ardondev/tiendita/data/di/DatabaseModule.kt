@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.ardondev.tiendita.data.source.local.StoreDatabase
 import com.ardondev.tiendita.data.source.local.dao.ProductDao
+import com.ardondev.tiendita.data.source.local.dao.SaleDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,6 +37,11 @@ class DatabaseModule {
     @Provides
     fun provideProductDao(storeDatabase: StoreDatabase): ProductDao {
         return storeDatabase.productDao()
+    }
+
+    @Provides
+    fun provideSaleDao(storeDatabase: StoreDatabase): SaleDao {
+        return storeDatabase.saleDao()
     }
 
 }
