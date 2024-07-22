@@ -18,9 +18,9 @@ fun Product.toEntity(): ProductEntity {
 /** Sale **/
 
 fun SaleEntity.toModel(): Sale {
-    return Sale(id, amount, quantity, total, productId)
+    return Sale(id, amount, quantity, total, productId, date)
 }
 
 fun Sale.toEntity(): SaleEntity {
-    return SaleEntity(id, amount, quantity, total, productId)
+    return SaleEntity(id, amount, quantity, total, productId, date)
 }

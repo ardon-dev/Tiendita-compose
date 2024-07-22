@@ -22,5 +22,6 @@ data class SaleEntity(
     val amount: Double,
     val quantity: Int,
     val total: Double,
-    val productId: Long
+    val productId: Long,
+    val date: String
 )

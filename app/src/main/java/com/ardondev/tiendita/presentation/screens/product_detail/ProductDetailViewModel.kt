@@ -1,13 +1,13 @@
 package com.ardondev.tiendita.presentation.screens.product_detail
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -17,8 +17,11 @@ import com.ardondev.tiendita.domain.model.Product
 import com.ardondev.tiendita.domain.model.Sale
 import com.ardondev.tiendita.domain.usecase.products.GetProductByIdUseCase
 import com.ardondev.tiendita.domain.usecase.products.UpdateProductUseCase
+import com.ardondev.tiendita.domain.usecase.sales.GetAllSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.InsertSaleUseCase
+import com.ardondev.tiendita.presentation.screens.product_detail.sales.SalesUiState
 import com.ardondev.tiendita.presentation.util.SingleEvent
+import com.ardondev.tiendita.presentation.util.getCurrentDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -33,7 +36,8 @@ class ProductDetailViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     getProductByIdUseCase: GetProductByIdUseCase,
     private val updateProductUseCase: UpdateProductUseCase,
-    private val insertSaleUseCase: InsertSaleUseCase
+    private val insertSaleUseCase: InsertSaleUseCase,
+    getAllSalesByProductIdUseCase: GetAllSalesByProductIdUseCase
 ) : ViewModel() {
 
     /** Loading **/
@@ -48,7 +52,9 @@ class ProductDetailViewModel @Inject constructor(
     /** Product data **/
 
     private val productId: Long = savedStateHandle["product_id"] ?: 0L
-    private var product: Product? = null
+
+    var product: Product? = null
+        private set
 
     private fun setProduct(product: Product) {
         this.name = product.name
@@ -64,9 +70,7 @@ class ProductDetailViewModel @Inject constructor(
             setProduct(product)
             ProductDetailUiState.Success(product) as ProductDetailUiState
         }
-        .catch { e ->
-            emit(ProductDetailUiState.Error(e.message.orEmpty()))
-        }
+        .catch { emit(ProductDetailUiState.Error(it.message.orEmpty())) }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
@@ -80,6 +84,15 @@ class ProductDetailViewModel @Inject constructor(
 
     fun setTabPositionValue(value: Int) {
         tabPosition = value
+
+        //If selected tab is Sales, set add icon
+        //If selected tav is Info, set edit icon
+        fabIcon = if (tabPosition == 1) {
+            Icons.Default.Add
+        } else {
+            //If is editable, set done icon
+            if (editable) Icons.Default.Done else Icons.Default.Edit
+        }
     }
 
     var fabIcon by mutableStateOf(Icons.Default.Edit)
@@ -87,19 +100,30 @@ class ProductDetailViewModel @Inject constructor(
         private set
 
     fun setEditableValue(value: Boolean) {
-        editable = value
-        if (editable) {
-            fabIcon = Icons.Default.Done
-        } else {
-            //If content is the same, do not update
-            val currentProduct = Product(productId, name, stock.toInt(), price.toDouble())
-            if (product == currentProduct) {
-                fabIcon = Icons.Default.Edit
-                return
+        //Make information screen action
+        if (tabPosition == 0) {
+            editable = value
+            if (editable) {
+                fabIcon = Icons.Default.Done
+            } else {
+                //If content is the same, do not update
+                val currentProduct = Product(productId, name, stock.toInt(), price.toDouble())
+                if (product == currentProduct) {
+                    fabIcon = Icons.Default.Edit
+                    return
+                }
+                //Otherwise, update the product
+                updateProduct(currentProduct)
             }
-            //Otherwise, update the product
-            updateProduct(currentProduct)
+            return
         }
+
+        //Make sales screen action
+        if (tabPosition == 1) {
+            insertSale()
+            return
+        }
+
     }
 
     var name by mutableStateOf("")
@@ -151,6 +175,17 @@ class ProductDetailViewModel @Inject constructor(
         }
     }
 
+    /** Get sales **/
+
+    val salesUiState: StateFlow<SalesUiState> = getAllSalesByProductIdUseCase(productId)
+        .map { SalesUiState.Success(it) as SalesUiState }
+        .catch { emit(SalesUiState.Error(it.message.orEmpty())) }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            SalesUiState.Loading
+        )
+
     /** Insert sale **/
 
     private val _insertSaleResult = MutableLiveData<SingleEvent<Long?>>()
@@ -166,8 +201,9 @@ class ProductDetailViewModel @Inject constructor(
                 id = null,
                 amount = product?.price ?: 0.0,
                 quantity = 1,
-                total = (product?.price ?: (0.0 * 1)),
-                productId = productId
+                total = (product?.price ?: 0.0) * 2,
+                productId = productId,
+                date = getCurrentDateTime()
             )
             val result = insertSaleUseCase(sale)
             if (result.isSuccess) {

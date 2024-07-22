@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.ardondev.tiendita.R
+import com.ardondev.tiendita.presentation.screens.product_detail.sales.SalesScreen
 import com.ardondev.tiendita.presentation.util.ErrorView
 import com.ardondev.tiendita.presentation.util.LoadingView
 import com.ardondev.tiendita.presentation.util.SingleEvent
@@ -84,21 +85,6 @@ fun ProductDetailScreen(
         })
 
     viewModel.updateProductError.observe(LocalLifecycleOwner.current,
-        SingleEvent.SingleEventObserver { error ->
-            error?.message?.let { message ->
-                scope.launch { snackBarHostState.showSnackbar(message) }
-            }
-        })
-
-    viewModel.insertSaleResult.observe(
-        LocalLifecycleOwner.current,
-        SingleEvent.SingleEventObserver { id ->
-            id?.let { scope.launch { snackBarHostState.showSnackbar("Inserted: $id") } }
-        }
-    )
-
-    viewModel.insertSaleError.observe(
-        LocalLifecycleOwner.current,
         SingleEvent.SingleEventObserver { error ->
             error?.message?.let { message ->
                 scope.launch { snackBarHostState.showSnackbar(message) }
@@ -158,7 +144,11 @@ fun ProductDetailScreen(
                     )
 
                     //SELLS LIST
-                    else -> SalesScreen()
+                    else -> SalesScreen(
+                        productId = productId,
+                        productPrice = viewModel.product?.price ?: 0.0,
+                        snackBarHostState = snackBarHostState
+                    )
                 }
             }
         }
