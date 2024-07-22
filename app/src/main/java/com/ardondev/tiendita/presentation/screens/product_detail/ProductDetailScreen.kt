@@ -1,7 +1,8 @@
 package com.ardondev.tiendita.presentation.screens.product_detail
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,9 +16,11 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -27,11 +30,13 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -42,6 +47,7 @@ import com.ardondev.tiendita.presentation.util.LoadingView
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(
     productId: Long,
@@ -102,30 +108,80 @@ fun ProductDetailScreen(
         snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { innerPadding ->
 
-        when (uiState) {
-            is ProductDetailUiState.Error -> {
-                val error = (uiState as ProductDetailUiState.Error).message
-                ErrorView(error)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+
+            //TABS
+            PrimaryTabRow(
+                selectedTabIndex = viewModel.tabPosition,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                listOf("Información", "Ventas").forEachIndexed { index, name ->
+                    Tab(
+                        selected = viewModel.tabPosition == index,
+                        onClick = { viewModel.setTabPositionValue(index) },
+                        text = {
+                            Text(
+                                text = name,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    )
+                }
             }
 
-            ProductDetailUiState.Loading -> {
-                LoadingView()
-            }
+            //CONTENT
+            Box(Modifier.fillMaxSize()) {
+                when (viewModel.tabPosition) {
 
-            is ProductDetailUiState.Success -> {
-                val product = (uiState as ProductDetailUiState.Success).product
+                    //PRODUCT DETAIL
+                    0 -> ProductDetailContent(
+                        viewModel = viewModel,
+                        uiState = uiState
+                    )
 
-                ProductDetailForm(
-                    innerPadding = innerPadding,
-                    viewModel = viewModel,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
+                    //SELLS LIST
+                    else -> {
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(Color.Red))
+
+                    }
+                }
             }
         }
-
     }
 
+}
+
+@Composable
+fun ProductDetailContent(
+    viewModel: ProductDetailViewModel,
+    uiState: ProductDetailUiState
+) {
+    when (uiState) {
+        is ProductDetailUiState.Error -> {
+            val error = (uiState as ProductDetailUiState.Error).message
+            ErrorView(error)
+        }
+
+        ProductDetailUiState.Loading -> {
+            LoadingView()
+        }
+
+        is ProductDetailUiState.Success -> {
+            ProductDetailForm(
+                viewModel = viewModel,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -169,7 +225,6 @@ fun ProductDetailFAB(
 
 @Composable
 fun ProductDetailForm(
-    innerPadding: PaddingValues,
     modifier: Modifier,
     viewModel: ProductDetailViewModel,
 ) {
@@ -177,12 +232,7 @@ fun ProductDetailForm(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(
-                top = innerPadding.calculateTopPadding() + 16.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = innerPadding.calculateBottomPadding() + 16.dp
-            )
+            .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
 

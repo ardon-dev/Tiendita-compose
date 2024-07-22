@@ -71,6 +71,13 @@ class ProductDetailViewModel @Inject constructor(
 
     /** UI states **/
 
+    var tabPosition by mutableStateOf(0)
+        private set
+
+    fun setTabPositionValue(value: Int) {
+        tabPosition = value
+    }
+
     var fabIcon by mutableStateOf(Icons.Default.Edit)
     var editable by mutableStateOf(false)
         private set
