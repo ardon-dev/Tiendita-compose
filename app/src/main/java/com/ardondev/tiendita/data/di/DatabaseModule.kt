@@ -26,7 +26,9 @@ class DatabaseModule {
             appContext,
             StoreDatabase::class.java,
             "store_db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     /** DAO's **/
