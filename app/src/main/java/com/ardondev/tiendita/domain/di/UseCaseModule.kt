@@ -4,6 +4,7 @@ import com.ardondev.tiendita.domain.repository.ProductRepository
 import com.ardondev.tiendita.domain.usecase.products.GetAllProductsUseCase
 import com.ardondev.tiendita.domain.usecase.products.GetProductByIdUseCase
 import com.ardondev.tiendita.domain.usecase.products.InsertProductUseCase
+import com.ardondev.tiendita.domain.usecase.products.UpdateProductUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,6 +33,12 @@ class UseCaseModule {
     @Singleton
     fun provideGetProductByIdUseCase(productRepository: ProductRepository): GetProductByIdUseCase {
         return GetProductByIdUseCase(productRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUpdateProductUseCase(productRepository: ProductRepository): UpdateProductUseCase {
+        return UpdateProductUseCase(productRepository)
     }
 
 }

@@ -10,6 +10,6 @@ class GetProductByIdUseCase @Inject constructor(
 ) {
 
     operator fun invoke(productId: Long): Flow<Product> =
-        productRepository.getProductById(productId)
+        productRepository.getById(productId)
 
 }

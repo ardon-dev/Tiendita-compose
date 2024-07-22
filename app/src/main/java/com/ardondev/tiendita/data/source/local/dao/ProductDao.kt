@@ -3,6 +3,7 @@ package com.ardondev.tiendita.data.source.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.ardondev.tiendita.data.source.local.entity.ProductEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -16,6 +17,9 @@ interface ProductDao {
     fun getAll(): Flow<List<ProductEntity>>
 
     @Query("SELECT * FROM products WHERE id = :productId")
-    fun getProductById(productId: Long): Flow<ProductEntity>
+    fun getById(productId: Long): Flow<ProductEntity>
+
+    @Update
+    suspend fun update(product: ProductEntity): Int
 
 }

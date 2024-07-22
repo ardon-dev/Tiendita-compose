@@ -27,8 +27,12 @@ class ProductRepositoryImpl @Inject constructor(
         return productDao.insert(product.toEntity())
     }
 
-    override fun getProductById(productId: Long): Flow<Product> {
-        return productDao.getProductById(productId).map { it.toModel() }
+    override fun getById(productId: Long): Flow<Product> {
+        return productDao.getById(productId).map { it.toModel() }
+    }
+
+    override suspend fun update(product: Product): Int {
+        return productDao.update(product.toEntity())
     }
 
 }

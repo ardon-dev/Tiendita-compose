@@ -9,6 +9,8 @@ interface ProductRepository {
 
     suspend fun insert(product: Product): Long
 
-    fun getProductById(productId: Long): Flow<Product>
+    fun getById(productId: Long): Flow<Product>
+
+    suspend fun update(product: Product): Int
 
 }
