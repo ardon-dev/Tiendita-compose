@@ -5,5 +5,15 @@ data class Sale(
     val amount: Double,
     val quantity: Int,
     val total: Double,
-    val productId: Long
-)
+    val productId: Long,
+) {
+
+    companion object {
+
+        fun getEmptySale(): Sale {
+            return Sale(null, 0.0, 0, 0.0, 0L)
+        }
+
+    }
+
+}
