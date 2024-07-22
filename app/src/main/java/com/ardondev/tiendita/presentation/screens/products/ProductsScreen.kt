@@ -1,7 +1,7 @@
 package com.ardondev.tiendita.presentation.screens.products
 
-import android.app.Dialog
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,8 +41,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
 import com.ardondev.tiendita.R
 import com.ardondev.tiendita.domain.model.Product
+import com.ardondev.tiendita.presentation.Routes
 import com.ardondev.tiendita.presentation.util.ErrorView
 import com.ardondev.tiendita.presentation.util.LoadingView
 import com.ardondev.tiendita.presentation.util.SingleEvent
@@ -58,7 +60,7 @@ fun HomeScreenPreview() {
     }
 
     Column {
-        ProductList(innerPadding = PaddingValues(16.dp), products = products)
+        ProductList(innerPadding = PaddingValues(16.dp), products = products, onProductClick = {})
     }
 
 }
@@ -67,6 +69,7 @@ fun HomeScreenPreview() {
 @Composable
 fun ProductsScreen(
     viewModel: ProductsViewModel = hiltViewModel(),
+    navHostController: NavHostController,
 ) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -139,7 +142,14 @@ fun ProductsScreen(
                 if (products.isNotEmpty()) {
                     ProductList(
                         innerPadding = innerPadding,
-                        products = products
+                        products = products,
+                        onProductClick = { productId ->
+                            navHostController.navigate(
+                                Routes.ProductDetailScreen.createRoute(
+                                    productId
+                                )
+                            )
+                        }
                     )
                 } else {
                     ErrorView(stringResource(R.string.txt_no_products))
@@ -183,6 +193,7 @@ fun ProductsScreen(
 fun ProductList(
     innerPadding: PaddingValues,
     products: List<Product>,
+    onProductClick: (productId: Long) -> Unit,
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -199,16 +210,27 @@ fun ProductList(
             items = products,
             key = { it.id ?: -1 }
         ) { p ->
-            ProductItem(p)
+            ProductItem(
+                product = p,
+                onClick = {
+                    onProductClick(p.id ?: 0L)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun ProductItem(product: Product) {
+fun ProductItem(
+    product: Product,
+    onClick: () -> Unit,
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
     ) {
         Row(
             modifier = Modifier
