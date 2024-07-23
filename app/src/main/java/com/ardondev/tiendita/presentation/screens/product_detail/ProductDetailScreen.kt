@@ -184,7 +184,7 @@ fun ProductDetailBottomAppBar(
     BottomAppBar(
         actions = {
             Text(
-                text = "Ingresos: $${viewModel.totalSales}",
+                text = "Vendido: $${viewModel.totalSales}",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(16.dp),
                 color = MaterialTheme.colorScheme.onSurface,

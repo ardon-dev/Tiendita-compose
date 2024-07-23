@@ -98,7 +98,7 @@ class ProductDetailViewModel @Inject constructor(
         tabPosition = value
 
         //If selected tab is Sales, set add icon
-        //If selected tav is Info, set edit icon
+        //If selected tab is Info, set edit icon
         fabIcon = if (tabPosition == 0) {
             Icons.Default.Add
         } else {
@@ -107,7 +107,7 @@ class ProductDetailViewModel @Inject constructor(
         }
     }
 
-    var fabIcon by mutableStateOf(Icons.Default.Edit)
+    var fabIcon by mutableStateOf(Icons.Default.Add)
     var editable by mutableStateOf(false)
         private set
 
