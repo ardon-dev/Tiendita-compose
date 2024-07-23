@@ -1,7 +1,10 @@
 package com.ardondev.tiendita.presentation.screens.product_detail.sales
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,12 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -28,16 +34,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.ardondev.tiendita.R
 import com.ardondev.tiendita.domain.model.Sale
 import com.ardondev.tiendita.presentation.screens.product_detail.ProductDetailViewModel
 import com.ardondev.tiendita.presentation.util.ErrorView
 import com.ardondev.tiendita.presentation.util.LoadingView
+import com.ardondev.tiendita.presentation.util.MMMM_d_yyyy_h_mm_a
 import com.ardondev.tiendita.presentation.util.SingleEvent
+import com.ardondev.tiendita.presentation.util.formatDate
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,8 +125,7 @@ fun SalesScreen(
 fun SalesList(sales: List<Sale>) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
-            .padding(16.dp)
+        contentPadding = PaddingValues(16.dp)
     ) {
         items(
             items = sales,
@@ -135,15 +145,18 @@ fun SaleItem(sale: Sale) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(
+                    vertical = 10.dp,
+                    horizontal = 16.dp
+                ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             //Icon
             Icon(
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = "Sale icon",
+                imageVector = Icons.Default.MonetizationOn,
+                contentDescription = "",
             )
 
             Spacer(Modifier.size(16.dp))
@@ -151,31 +164,52 @@ fun SaleItem(sale: Sale) {
             //Info
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
 
-                //Sale price
+                //Sale date
+                val date = formatDate(input = sale.date, outputFormat = MMMM_d_yyyy_h_mm_a)
                 Text(
-                    text = "Precio de venta: $${sale.amount}",
-                    style = MaterialTheme.typography.bodySmall,
+                    text = date,
+                    style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 //Quantity
                 Text(
-                    text = "Cantidad: ${sale.quantity}",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.fillMaxWidth()
+                    text = stringResource(R.string.txt_sold_quantity, sale.quantity),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
                 )
 
-                //Total
+                //Price unity
                 Text(
-                    text = "Total: $${sale.total}",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.fillMaxWidth()
+                    text = "Precio c/u: $${sale.amount}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 2.dp)
                 )
 
+            }
+
+            //Total
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            ) {
+                Text(
+                    text = "+ $${sale.total}",
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
 
         }
