@@ -50,8 +50,11 @@ class UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideInsertSaleUseCase(saleRepository: SaleRepository): InsertSaleUseCase {
-        return InsertSaleUseCase(saleRepository)
+    fun provideInsertSaleUseCase(
+        saleRepository: SaleRepository,
+        productRepository: ProductRepository,
+    ): InsertSaleUseCase {
+        return InsertSaleUseCase(saleRepository, productRepository)
     }
 
     @Provides

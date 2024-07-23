@@ -22,4 +22,7 @@ interface ProductDao {
     @Update
     suspend fun update(product: ProductEntity): Int
 
+    @Query("UPDATE products SET stock = (stock - :quantity) WHERE id = :productId")
+    suspend fun updateStock(productId: Long, quantity: Int): Int
+
 }

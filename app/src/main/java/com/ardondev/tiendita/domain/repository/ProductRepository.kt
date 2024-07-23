@@ -13,4 +13,6 @@ interface ProductRepository {
 
     suspend fun update(product: Product): Int
 
+    suspend fun updateStock(productId: Long, quantity: Int): Int
+
 }

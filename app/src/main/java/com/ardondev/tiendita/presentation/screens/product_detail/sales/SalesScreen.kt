@@ -53,6 +53,7 @@ import com.ardondev.tiendita.presentation.util.SingleEvent
 import com.ardondev.tiendita.presentation.util.formatDate
 import com.ardondev.tiendita.presentation.util.formatToUSD
 import kotlinx.coroutines.launch
+import java.lang.Error
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,7 +105,11 @@ fun SalesScreen(
 
         is SalesUiState.Success -> {
             val sales = (uiState as SalesUiState.Success).sales
-            SalesList(sales)
+            if (sales.isNotEmpty()) {
+                SalesList(sales)
+            } else {
+                ErrorView("No hay ventas.")
+            }
         }
     }
 

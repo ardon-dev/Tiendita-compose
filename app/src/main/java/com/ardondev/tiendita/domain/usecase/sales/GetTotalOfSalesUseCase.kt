@@ -8,7 +8,7 @@ class GetTotalOfSalesUseCase @Inject constructor(
     private val saleRepository: SaleRepository
 ) {
 
-    operator fun invoke(): Flow<Double> {
+    operator fun invoke(): Flow<Double?> {
         return saleRepository.getTotalOfSales()
     }
 
