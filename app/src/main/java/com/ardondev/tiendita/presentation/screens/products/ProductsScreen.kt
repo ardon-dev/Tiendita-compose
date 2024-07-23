@@ -1,14 +1,15 @@
 package com.ardondev.tiendita.presentation.screens.products
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -17,10 +18,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,10 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -52,21 +54,6 @@ import com.ardondev.tiendita.presentation.util.ErrorView
 import com.ardondev.tiendita.presentation.util.LoadingView
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import kotlinx.coroutines.launch
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    val products = mutableListOf<Product>().apply {
-        repeat(5) {
-            add(Product(it.toLong(), "a", 1, 0.10))
-        }
-    }
-
-    Column {
-        ProductList(innerPadding = PaddingValues(16.dp), products = products, onProductClick = {})
-    }
-
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,7 +106,7 @@ fun ProductsScreen(
     /** Products **/
 
     Scaffold(
-        //ADD FAB
+        topBar = { ProductsTopAppBar() },
         floatingActionButton = {
             ProductsFAB(
                 onAdd = { showBottomSheet = true }
@@ -146,6 +133,7 @@ fun ProductsScreen(
                     ProductList(
                         innerPadding = innerPadding,
                         products = products,
+                        totalSales = viewModel.totalSales,
                         onProductClick = { productId ->
                             navHostController.navigate(
                                 Routes.ProductDetailScreen.createRoute(
@@ -192,12 +180,23 @@ fun ProductsScreen(
 
 /** Components **/
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductsTopAppBar() {
+    TopAppBar(
+        title = { Text("Tiendita") },
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductList(
     innerPadding: PaddingValues,
     products: List<Product>,
+    totalSales: String,
     onProductClick: (productId: Long) -> Unit,
 ) {
+    // LIST //
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
@@ -209,6 +208,9 @@ fun ProductList(
                 bottom = innerPadding.calculateBottomPadding()
             )
     ) {
+        stickyHeader {
+            ProductsHeader(totalSales)
+        }
         items(
             items = products,
             key = { it.id ?: -1 }
@@ -220,6 +222,30 @@ fun ProductList(
                 }
             )
         }
+    }
+}
+
+@Composable
+fun ProductsHeader(
+    totalSales: String,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = MaterialTheme.shapes.small
+            )
+    ) {
+        Text(
+            text = "Ingreso total: $${totalSales}",
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        )
     }
 }
 

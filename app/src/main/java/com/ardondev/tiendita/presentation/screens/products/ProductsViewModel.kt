@@ -1,5 +1,8 @@
 package com.ardondev.tiendita.presentation.screens.products
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,12 +10,15 @@ import androidx.lifecycle.viewModelScope
 import com.ardondev.tiendita.domain.model.Product
 import com.ardondev.tiendita.domain.usecase.products.GetAllProductsUseCase
 import com.ardondev.tiendita.domain.usecase.products.InsertProductUseCase
+import com.ardondev.tiendita.domain.usecase.sales.GetTotalOfSalesUseCase
 import com.ardondev.tiendita.presentation.screens.products.ProductsUiState.Success
 import com.ardondev.tiendita.presentation.util.SingleEvent
+import com.ardondev.tiendita.presentation.util.formatToUSD
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -22,6 +28,7 @@ import javax.inject.Inject
 class ProductsViewModel @Inject constructor(
     private val insertProductUseCase: InsertProductUseCase,
     getAllProductsUseCase: GetAllProductsUseCase,
+    private val getTotalOfSalesUseCase: GetTotalOfSalesUseCase,
 ) : ViewModel() {
 
     private val _loading = MutableLiveData(false)
@@ -63,5 +70,22 @@ class ProductsViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             ProductsUiState.Loading
         )
+
+    /** Total of sales **/
+
+    var totalSales by mutableStateOf("$0.00")
+        private set
+
+    private fun getTotalSales() {
+        viewModelScope.launch {
+            getTotalOfSalesUseCase().collectLatest { total ->
+                totalSales = formatToUSD(total.toString())
+            }
+        }
+    }
+
+    init {
+        getTotalSales()
+    }
 
 }
