@@ -10,10 +10,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
@@ -32,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,9 +60,7 @@ fun ProductDetailScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val uiState by produceState<ProductDetailUiState>(
-        initialValue = ProductDetailUiState.Loading,
-        key1 = lifecycle,
-        key2 = viewModel
+        initialValue = ProductDetailUiState.Loading, key1 = lifecycle, key2 = viewModel
     ) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.uiState.collect { value = it }
@@ -72,8 +73,7 @@ fun ProductDetailScreen(
 
     /** Events **/
 
-    viewModel.updateProductResult.observe(
-        LocalLifecycleOwner.current,
+    viewModel.updateProductResult.observe(LocalLifecycleOwner.current,
         SingleEvent.SingleEventObserver { rows ->
             rows?.let {
                 scope.launch {
@@ -84,7 +84,8 @@ fun ProductDetailScreen(
             }
         })
 
-    viewModel.updateProductError.observe(LocalLifecycleOwner.current,
+    viewModel.updateProductError.observe(
+        LocalLifecycleOwner.current,
         SingleEvent.SingleEventObserver { error ->
             error?.message?.let { message ->
                 scope.launch { snackBarHostState.showSnackbar(message) }
@@ -94,15 +95,26 @@ fun ProductDetailScreen(
     /** Product detail **/
 
     Scaffold(
-        topBar = {
-            ProductDetailTopAppBar()
-        },
-        floatingActionButton = {
-            if (!viewModel.loading) {
-                ProductDetailFAB(viewModel.fabIcon) {
-                    viewModel.setEditableValue(!viewModel.editable)
+        topBar = { ProductDetailTopAppBar() },
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    Text(
+                        text = "Ingresos: $${viewModel.totalSales}",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                floatingActionButton = {
+                    if (!viewModel.loading) {
+                        ProductDetailFAB(viewModel.fabIcon) {
+                            viewModel.setEditableValue(!viewModel.editable)
+                        }
+                    }
                 }
-            }
+            )
         },
         snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { innerPadding ->
@@ -115,21 +127,17 @@ fun ProductDetailScreen(
 
             //TABS
             PrimaryTabRow(
-                selectedTabIndex = viewModel.tabPosition,
-                modifier = Modifier.fillMaxWidth()
+                selectedTabIndex = viewModel.tabPosition, modifier = Modifier.fillMaxWidth()
             ) {
-                listOf("Información", "Ventas").forEachIndexed { index, name ->
+                listOf("Ventas", "Producto").forEachIndexed { index, name ->
                     Tab(
                         selected = viewModel.tabPosition == index,
                         onClick = { viewModel.setTabPositionValue(index) },
                         text = {
                             Text(
-                                text = name,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
+                                text = name, maxLines = 2, overflow = TextOverflow.Ellipsis
                             )
-                        }
-                    )
+                        })
                 }
             }
 
@@ -138,15 +146,15 @@ fun ProductDetailScreen(
                 when (viewModel.tabPosition) {
 
                     //PRODUCT DETAIL
-                    0 -> ProductDetailContent(
-                        viewModel = viewModel,
-                        uiState = uiState
+                    0 -> SalesScreen(
+                        snackBarHostState = snackBarHostState
                     )
 
                     //SELLS LIST
-                    else -> SalesScreen(
-                        snackBarHostState = snackBarHostState
+                    else -> ProductDetailContent(
+                        viewModel = viewModel, uiState = uiState
                     )
+
                 }
             }
         }
@@ -171,9 +179,7 @@ fun ProductDetailContent(
 
         is ProductDetailUiState.Success -> {
             ProductDetailForm(
-                viewModel = viewModel,
-                modifier = Modifier
-                    .fillMaxWidth()
+                viewModel = viewModel, modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -182,23 +188,17 @@ fun ProductDetailContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailTopAppBar() {
-    TopAppBar(
-        title = {
-            Text(text = stringResource(R.string.txt_product_detail))
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = {
+    TopAppBar(title = {
+        Text(text = stringResource(R.string.txt_product_detail))
+    }, navigationIcon = {
+        IconButton(onClick = {
 
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
-                )
-            }
+        }) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack, contentDescription = "Back"
+            )
         }
-    )
+    })
 }
 
 @Composable
@@ -212,8 +212,7 @@ fun ProductDetailFAB(
         },
     ) {
         Icon(
-            imageVector = icon,
-            contentDescription = "Edit"
+            imageVector = icon, contentDescription = "Edit"
         )
     }
 }
@@ -240,8 +239,7 @@ fun ProductDetailForm(
             value = viewModel.name,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next,
-                keyboardType = KeyboardType.Text
+                imeAction = ImeAction.Next, keyboardType = KeyboardType.Text
             ),
             onValueChange = viewModel::setNameValue,
             label = { Text(stringResource(R.string.txt_name)) },
@@ -254,8 +252,7 @@ fun ProductDetailForm(
             value = viewModel.stock,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
+                keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
             ),
             onValueChange = viewModel::setStockValue,
             label = { Text(stringResource(R.string.txt_stock)) },
@@ -268,8 +265,7 @@ fun ProductDetailForm(
             value = viewModel.price,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Decimal,
-                imeAction = ImeAction.Done
+                keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
             ),
             onValueChange = viewModel::setPriceValue,
             prefix = { Text("$") },

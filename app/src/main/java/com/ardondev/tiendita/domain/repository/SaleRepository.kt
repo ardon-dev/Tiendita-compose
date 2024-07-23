@@ -9,4 +9,8 @@ interface SaleRepository {
 
     fun getAllByProductId(productId: Long): Flow<List<Sale>>
 
+    fun getTotalOfSales(): Flow<Double>
+
+    fun getTotalOfSalesByProductId(productId: Long): Flow<Double?>
+
 }

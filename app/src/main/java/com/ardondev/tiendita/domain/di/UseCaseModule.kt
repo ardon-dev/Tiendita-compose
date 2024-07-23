@@ -6,6 +6,9 @@ import com.ardondev.tiendita.domain.usecase.products.GetAllProductsUseCase
 import com.ardondev.tiendita.domain.usecase.products.GetProductByIdUseCase
 import com.ardondev.tiendita.domain.usecase.products.InsertProductUseCase
 import com.ardondev.tiendita.domain.usecase.products.UpdateProductUseCase
+import com.ardondev.tiendita.domain.usecase.sales.GetAllSalesByProductIdUseCase
+import com.ardondev.tiendita.domain.usecase.sales.GetTotalOfSalesByProductIdUseCase
+import com.ardondev.tiendita.domain.usecase.sales.GetTotalOfSalesUseCase
 import com.ardondev.tiendita.domain.usecase.sales.InsertSaleUseCase
 import dagger.Module
 import dagger.Provides
@@ -49,6 +52,22 @@ class UseCaseModule {
     @Singleton
     fun provideInsertSaleUseCase(saleRepository: SaleRepository): InsertSaleUseCase {
         return InsertSaleUseCase(saleRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetAllSalesByProductIdUseCase(saleRepository: SaleRepository): GetAllSalesByProductIdUseCase {
+        return GetAllSalesByProductIdUseCase(saleRepository)
+    }
+
+    @Provides
+    fun provideGetTotalOfSalesUseCase(saleRepository: SaleRepository): GetTotalOfSalesUseCase {
+        return GetTotalOfSalesUseCase(saleRepository)
+    }
+
+    @Provides
+    fun provideGetTotalOfSalesByProductIdUseCase(saleRepository: SaleRepository): GetTotalOfSalesByProductIdUseCase {
+        return GetTotalOfSalesByProductIdUseCase(saleRepository)
     }
 
 }

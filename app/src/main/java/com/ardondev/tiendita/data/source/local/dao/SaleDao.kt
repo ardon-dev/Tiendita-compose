@@ -16,4 +16,10 @@ interface SaleDao {
     @Query("SELECT * FROM sales WHERE productId = :productId")
     fun getAllByProductId(productId: Long): Flow<List<SaleEntity>>
 
+    @Query("SELECT SUM(total) FROM sales")
+    fun getTotalOfSales(): Flow<Double>
+
+    @Query("SELECT SUM(total) FROM sales WHERE productId = :productId")
+    fun getTotalOfSalesByProductId(productId: Long): Flow<Double?>
+
 }

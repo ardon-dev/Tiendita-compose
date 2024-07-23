@@ -49,6 +49,7 @@ import com.ardondev.tiendita.presentation.util.LoadingView
 import com.ardondev.tiendita.presentation.util.MMMM_d_yyyy_h_mm_a
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import com.ardondev.tiendita.presentation.util.formatDate
+import com.ardondev.tiendita.presentation.util.formatToUSD
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -187,7 +188,7 @@ fun SaleItem(sale: Sale) {
 
                 //Price unity
                 Text(
-                    text = "Precio c/u: $${sale.amount}",
+                    text = "Precio c/u: $${formatToUSD(sale.amount.toString())}",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -205,7 +206,7 @@ fun SaleItem(sale: Sale) {
                     )
             ) {
                 Text(
-                    text = "+ $${sale.total}",
+                    text = "+ $${formatToUSD(sale.total.toString())}",
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
                     color = MaterialTheme.colorScheme.onPrimary

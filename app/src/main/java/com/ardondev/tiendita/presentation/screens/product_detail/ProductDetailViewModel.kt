@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -19,14 +18,17 @@ import com.ardondev.tiendita.domain.model.Sale
 import com.ardondev.tiendita.domain.usecase.products.GetProductByIdUseCase
 import com.ardondev.tiendita.domain.usecase.products.UpdateProductUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetAllSalesByProductIdUseCase
+import com.ardondev.tiendita.domain.usecase.sales.GetTotalOfSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.InsertSaleUseCase
 import com.ardondev.tiendita.presentation.screens.product_detail.sales.SalesUiState
 import com.ardondev.tiendita.presentation.util.SingleEvent
+import com.ardondev.tiendita.presentation.util.formatToUSD
 import com.ardondev.tiendita.presentation.util.getCurrentDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -38,7 +40,8 @@ class ProductDetailViewModel @Inject constructor(
     getProductByIdUseCase: GetProductByIdUseCase,
     private val updateProductUseCase: UpdateProductUseCase,
     private val insertSaleUseCase: InsertSaleUseCase,
-    getAllSalesByProductIdUseCase: GetAllSalesByProductIdUseCase
+    getAllSalesByProductIdUseCase: GetAllSalesByProductIdUseCase,
+    private val getTotalOfSalesByProductIdUseCase: GetTotalOfSalesByProductIdUseCase,
 ) : ViewModel() {
 
     /** Loading **/
@@ -79,7 +82,7 @@ class ProductDetailViewModel @Inject constructor(
         )
 
     /** UI states **/
-    
+
     var showBottomSheet by mutableStateOf(false)
         private set
 
@@ -194,6 +197,21 @@ class ProductDetailViewModel @Inject constructor(
             SalesUiState.Loading
         )
 
+    /** Get all sales **/
+
+    var totalSales by mutableStateOf("0.00")
+        private set
+
+    private fun getTotalOfSales() {
+        viewModelScope.launch {
+            getTotalOfSalesByProductIdUseCase(productId).collectLatest { total ->
+                total?.let {
+                    totalSales = formatToUSD(total.toString())
+                }
+            }
+        }
+    }
+
     /** Insert sale **/
 
     private val _insertSaleResult = MutableLiveData<SingleEvent<Long?>>()
@@ -224,6 +242,10 @@ class ProductDetailViewModel @Inject constructor(
                 showBottomSheet = false
             }
         }
+    }
+
+    init {
+        getTotalOfSales()
     }
 
 }
