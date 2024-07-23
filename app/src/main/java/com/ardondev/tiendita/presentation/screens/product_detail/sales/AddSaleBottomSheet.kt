@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ardondev.tiendita.R
 import com.ardondev.tiendita.presentation.util.QuantityControl
+import com.ardondev.tiendita.presentation.util.formatToUSD
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +79,7 @@ fun SaleForm(
         OutlinedTextField(
             value = priceState,
             onValueChange = {
-                priceState = it.ifEmpty { "1" }
+                priceState = formatToUSD(it.ifEmpty { "1" })
                 validPrice = (priceState.isNotEmpty()) && (priceState.toDouble() > 0.0)
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
