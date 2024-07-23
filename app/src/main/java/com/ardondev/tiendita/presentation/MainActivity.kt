@@ -4,9 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,24 +17,24 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private lateinit var _navHostController: NavHostController
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
             TienditaTheme {
-                _navHostController = rememberNavController()
+
+                val navHostController = rememberNavController()
+
                 NavHost(
-                    navController = _navHostController,
+                    navController = navHostController,
                     startDestination = Routes.ProductsScreen.route
                 ) {
 
                     //Products
                     composable(Routes.ProductsScreen.route) {
                         ProductsScreen(
-                            navHostController = _navHostController
+                            navHostController = navHostController
                         )
                     }
 
@@ -52,21 +49,16 @@ class MainActivity : ComponentActivity() {
                     ) { navBackStackEntry ->
                         val productId = navBackStackEntry.arguments?.getLong("product_id")
                         productId?.let {
-                            ProductDetailScreen(productId = productId)
+                            ProductDetailScreen(
+                                productId = productId,
+                                navHostController = navHostController
+                            )
                         }
                     }
 
                 }
             }
         }
-    }
-
-    @Preview
-    @Composable
-    fun MainPreview() {
-        ProductsScreen(
-            navHostController = _navHostController
-        )
     }
 
 }

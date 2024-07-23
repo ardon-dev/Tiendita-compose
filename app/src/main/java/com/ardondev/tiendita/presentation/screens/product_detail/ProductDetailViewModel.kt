@@ -20,6 +20,7 @@ import com.ardondev.tiendita.domain.usecase.products.UpdateProductUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetAllSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetTotalOfSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.InsertSaleUseCase
+import com.ardondev.tiendita.presentation.screens.product_detail.product.ProductUiState
 import com.ardondev.tiendita.presentation.screens.product_detail.sales.SalesUiState
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import com.ardondev.tiendita.presentation.util.formatToUSD
@@ -68,17 +69,17 @@ class ProductDetailViewModel @Inject constructor(
 
     /** Get product **/
 
-    val uiState: StateFlow<ProductDetailUiState> = getProductByIdUseCase(productId)
+    val uiState: StateFlow<ProductUiState> = getProductByIdUseCase(productId)
         .map { product ->
             this.product = product
             setProduct(product)
-            ProductDetailUiState.Success(product) as ProductDetailUiState
+            ProductUiState.Success(product) as ProductUiState
         }
-        .catch { emit(ProductDetailUiState.Error(it.message.orEmpty())) }
+        .catch { emit(ProductUiState.Error(it.message.orEmpty())) }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            ProductDetailUiState.Loading
+            ProductUiState.Loading
         )
 
     /** UI states **/
@@ -98,7 +99,7 @@ class ProductDetailViewModel @Inject constructor(
 
         //If selected tab is Sales, set add icon
         //If selected tav is Info, set edit icon
-        fabIcon = if (tabPosition == 1) {
+        fabIcon = if (tabPosition == 0) {
             Icons.Default.Add
         } else {
             //If is editable, set done icon
@@ -112,7 +113,7 @@ class ProductDetailViewModel @Inject constructor(
 
     fun setEditableValue(value: Boolean) {
         //Make information screen action
-        if (tabPosition == 0) {
+        if (tabPosition == 1) {
             editable = value
             if (editable) {
                 fabIcon = Icons.Default.Done
@@ -130,7 +131,7 @@ class ProductDetailViewModel @Inject constructor(
         }
 
         //Make sales screen action
-        if (tabPosition == 1) {
+        if (tabPosition == 0) {
             showBottomSheet = true
             return
         }

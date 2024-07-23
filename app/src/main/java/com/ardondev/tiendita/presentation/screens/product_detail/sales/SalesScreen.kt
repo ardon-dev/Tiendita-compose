@@ -36,8 +36,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -155,9 +157,11 @@ fun SaleItem(sale: Sale) {
         ) {
 
             //Icon
-            Icon(
-                imageVector = Icons.Default.MonetizationOn,
-                contentDescription = "",
+            Text(
+                text = "\uD83D\uDCB2",
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
 
             Spacer(Modifier.size(16.dp))

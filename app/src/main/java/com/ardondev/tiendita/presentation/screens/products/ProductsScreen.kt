@@ -30,12 +30,15 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -235,20 +238,20 @@ fun ProductItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
 
             //Product icon
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
-                contentDescription = "Product icon",
-                modifier = Modifier
-                    .size(40.dp)
+            Text(
+                text = "\uD83C\uDF6C",
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
 
             Column(
                 modifier = Modifier
-                    .padding(start = 8.dp)
+                    .padding(start = 16.dp)
             ) {
                 //Product name
                 Text(text = product.name)
