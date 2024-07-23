@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,7 +68,7 @@ fun ProductsScreen(
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
     val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
+    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     val loadingState by viewModel.loading.observeAsState()
 
     val uiState by produceState<ProductsUiState>(
@@ -84,13 +85,8 @@ fun ProductsScreen(
 
     viewModel.insertProductResult.observe(
         LocalLifecycleOwner.current,
-        SingleEvent.SingleEventObserver { id ->
-            id?.let {
-                scope.launch {
-                    snackBarHostState.showSnackbar("Inserted: $id")
-                }
-                showBottomSheet = false
-            }
+        SingleEvent.SingleEventObserver { _ ->
+            showBottomSheet = false
         })
 
     viewModel.insertProductError.observe(
@@ -100,14 +96,14 @@ fun ProductsScreen(
                 scope.launch {
                     snackBarHostState.showSnackbar(error)
                 }
-                showBottomSheet = false
             }
+            showBottomSheet = false
         })
 
     /** Products **/
 
     Scaffold(
-        topBar = { ProductsTopAppBar() },
+        topBar = { ProductsTopAppBar(viewModel.totalSales) },
         floatingActionButton = {
             ProductsFAB(
                 onAdd = { showBottomSheet = true }
@@ -183,10 +179,14 @@ fun ProductsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductsTopAppBar() {
-    TopAppBar(
-        title = { Text("Tiendita") },
-    )
+fun ProductsTopAppBar(totalSales: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        TopAppBar({ Text("Tiendita") })
+        ProductsHeader(totalSales = totalSales)
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -209,9 +209,6 @@ fun ProductList(
                 bottom = innerPadding.calculateBottomPadding()
             )
     ) {
-        stickyHeader {
-            ProductsHeader(totalSales)
-        }
         items(
             items = products,
             key = { it.id ?: -1 }
@@ -230,23 +227,26 @@ fun ProductList(
 fun ProductsHeader(
     totalSales: String,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = MaterialTheme.shapes.small
-            )
-    ) {
-        Text(
-            text = "Ingreso total: $${totalSales}",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.SemiBold,
+    Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
-        )
+                .background(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = MaterialTheme.shapes.small
+                )
+        ) {
+            Text(
+                text = "Ingreso total: $${totalSales}",
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp)
+            )
+        }
     }
 }
 

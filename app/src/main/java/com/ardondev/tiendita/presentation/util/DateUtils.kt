@@ -9,6 +9,7 @@ import java.util.Locale
 
 const val yyyy_MM_dd_HH_mm_ss = "yyyy-MM-dd HH:mm:ss"
 const val MMMM_d_yyyy_h_mm_a = "MMMM d, yyyy h:mm a"
+const val dd_MM_yyyy_h_mm_a = "dd/MM/yyyy h:mm a"
 
 fun getCurrentDateTime(): String {
     val dateTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

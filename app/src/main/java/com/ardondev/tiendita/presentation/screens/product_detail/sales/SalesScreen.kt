@@ -33,9 +33,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,6 +52,7 @@ import com.ardondev.tiendita.presentation.util.ErrorView
 import com.ardondev.tiendita.presentation.util.LoadingView
 import com.ardondev.tiendita.presentation.util.MMMM_d_yyyy_h_mm_a
 import com.ardondev.tiendita.presentation.util.SingleEvent
+import com.ardondev.tiendita.presentation.util.dd_MM_yyyy_h_mm_a
 import com.ardondev.tiendita.presentation.util.formatDate
 import com.ardondev.tiendita.presentation.util.formatToUSD
 import kotlinx.coroutines.launch
@@ -179,11 +182,12 @@ fun SaleItem(sale: Sale) {
             ) {
 
                 //Sale date
-                val date = formatDate(input = sale.date, outputFormat = MMMM_d_yyyy_h_mm_a)
+                val date = formatDate(input = sale.date, outputFormat = dd_MM_yyyy_h_mm_a)
                 Text(
                     text = date,
                     style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    fontWeight = FontWeight.SemiBold
                 )
 
                 //Quantity
@@ -197,7 +201,7 @@ fun SaleItem(sale: Sale) {
 
                 //Price unity
                 Text(
-                    text = "Precio c/u: $${formatToUSD(sale.amount.toString())}",
+                    text = "Precio: $${formatToUSD(sale.amount.toString())} c/u",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -210,7 +214,7 @@ fun SaleItem(sale: Sale) {
             Box(
                 modifier = Modifier
                     .background(
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.primaryContainer,
                         shape = RoundedCornerShape(12.dp)
                     )
             ) {
@@ -218,7 +222,7 @@ fun SaleItem(sale: Sale) {
                     text = "+ $${formatToUSD(sale.total.toString())}",
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
 
