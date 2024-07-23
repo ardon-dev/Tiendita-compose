@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -78,6 +79,13 @@ class ProductDetailViewModel @Inject constructor(
         )
 
     /** UI states **/
+    
+    var showBottomSheet by mutableStateOf(false)
+        private set
+
+    fun setShowBottomSheetValue(value: Boolean) {
+        showBottomSheet = value
+    }
 
     var tabPosition by mutableIntStateOf(0)
         private set
@@ -120,7 +128,7 @@ class ProductDetailViewModel @Inject constructor(
 
         //Make sales screen action
         if (tabPosition == 1) {
-            insertSale()
+            showBottomSheet = true
             return
         }
 
@@ -194,14 +202,14 @@ class ProductDetailViewModel @Inject constructor(
     private val _insertSaleError = MutableLiveData<SingleEvent<Throwable?>>()
     val insertSaleError: LiveData<SingleEvent<Throwable?>> = _insertSaleError
 
-    fun insertSale() {
+    fun insertSale(price: Double, quantity: Int) {
         viewModelScope.launch {
             loading = true
             val sale = Sale(
                 id = null,
-                amount = product?.price ?: 0.0,
-                quantity = 1,
-                total = (product?.price ?: 0.0) * 2,
+                amount = price,
+                quantity = quantity,
+                total = (price * quantity),
                 productId = productId,
                 date = getCurrentDateTime()
             )
@@ -209,9 +217,11 @@ class ProductDetailViewModel @Inject constructor(
             if (result.isSuccess) {
                 _insertSaleResult.value = SingleEvent(result.getOrNull())
                 loading = false
+                showBottomSheet = false
             } else {
                 _insertSaleError.value = SingleEvent(result.exceptionOrNull())
                 loading = false
+                showBottomSheet = false
             }
         }
     }

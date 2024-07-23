@@ -145,8 +145,6 @@ fun ProductDetailScreen(
 
                     //SELLS LIST
                     else -> SalesScreen(
-                        productId = productId,
-                        productPrice = viewModel.product?.price ?: 0.0,
                         snackBarHostState = snackBarHostState
                     )
                 }
