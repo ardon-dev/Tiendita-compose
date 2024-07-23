@@ -53,6 +53,7 @@ import com.ardondev.tiendita.presentation.Routes
 import com.ardondev.tiendita.presentation.util.ErrorView
 import com.ardondev.tiendita.presentation.util.LoadingView
 import com.ardondev.tiendita.presentation.util.SingleEvent
+import com.ardondev.tiendita.presentation.util.formatToUSD
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -264,7 +265,7 @@ fun ProductItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
 
             //Product icon
@@ -280,9 +281,20 @@ fun ProductItem(
                     .padding(start = 16.dp)
             ) {
                 //Product name
-                Text(text = product.name)
+                Text(
+                    text = product.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
                 //Product stock
-                Text(text = "Stock: ${product.stock}")
+                Text(
+                    text = "Stock: ${product.stock}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                //Product price
+                Text(
+                    text = "Precio unitario: $${formatToUSD(product.price.toString())}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
         }
