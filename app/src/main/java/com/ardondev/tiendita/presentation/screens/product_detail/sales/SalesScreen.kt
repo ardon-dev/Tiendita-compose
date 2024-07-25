@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,11 +17,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.MonetizationOn
+import androidx.compose.material.icons.rounded.AttachMoney
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -50,6 +54,7 @@ import com.ardondev.tiendita.domain.model.Sale
 import com.ardondev.tiendita.presentation.screens.product_detail.ProductDetailViewModel
 import com.ardondev.tiendita.presentation.util.ErrorView
 import com.ardondev.tiendita.presentation.util.LoadingView
+import com.ardondev.tiendita.presentation.util.MMMM_d_h_mm_a
 import com.ardondev.tiendita.presentation.util.MMMM_d_yyyy_h_mm_a
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import com.ardondev.tiendita.presentation.util.dd_MM_yyyy_h_mm_a
@@ -67,8 +72,9 @@ fun SalesScreen(
 
     val scope = rememberCoroutineScope()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    var showBottomSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
     val uiState by produceState<SalesUiState>(
         initialValue = SalesUiState.Loading,
         key1 = lifecycle,
@@ -165,14 +171,14 @@ fun SaleItem(sale: Sale) {
         ) {
 
             //Icon
-            Text(
-                text = "\uD83D\uDCB2",
-                fontSize = 24.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.align(Alignment.CenterVertically)
+            Icon(
+                imageVector = Icons.Rounded.AttachMoney,
+                contentDescription = "",
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
             )
 
-            Spacer(Modifier.size(16.dp))
+            Spacer(Modifier.size(10.dp))
 
             //Info
             Column(
@@ -182,48 +188,79 @@ fun SaleItem(sale: Sale) {
             ) {
 
                 //Sale date
-                val date = formatDate(input = sale.date, outputFormat = dd_MM_yyyy_h_mm_a)
+                val date = formatDate(
+                    input = sale.date,
+                    outputFormat = MMMM_d_h_mm_a,
+                    legibleDate = true
+                )
                 Text(
                     text = date,
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.fillMaxWidth(),
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                //Quantity
-                Text(
-                    text = stringResource(R.string.txt_sold_quantity, sale.quantity),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp)
-                )
-
-                //Price unity
-                Text(
-                    text = "Precio: $${formatToUSD(sale.amount.toString())} c/u",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 2.dp)
-                )
-
-            }
-
-            //Total
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-            ) {
-                Text(
-                    text = "+ $${formatToUSD(sale.total.toString())}",
                     style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(Modifier.size(8.dp))
+                Row {
+                    //Quantity
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f)
+                    ) {
+                        Text(
+                            text = "Qty: ${sale.quantity}",
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp)
+                        )
+                    }
+
+                    //Price unity
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                    ) {
+                        Text(
+                            text = "$${formatToUSD(sale.amount.toString())} c/u",
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp)
+                        )
+                    }
+
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                    ) {
+                        Text(
+                            text = "+ $${formatToUSD(sale.total.toString())}",
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+
             }
 
         }

@@ -64,7 +64,7 @@ class ProductDetailViewModel @Inject constructor(
     private fun setProduct(product: Product) {
         this.name = product.name
         this.stock = product.stock.toString()
-        this.price = product.price.toString()
+        this.price = formatToUSD(product.price.toString())
     }
 
     /** Get product **/
@@ -156,7 +156,7 @@ class ProductDetailViewModel @Inject constructor(
         private set
 
     fun setPriceValue(value: String) {
-        price = value
+        price = formatToUSD(value)
     }
 
     /** Update product **/

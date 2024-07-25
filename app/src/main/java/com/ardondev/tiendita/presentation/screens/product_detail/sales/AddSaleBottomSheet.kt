@@ -8,12 +8,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,10 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ardondev.tiendita.R
+import com.ardondev.tiendita.presentation.util.CustomTextField
 import com.ardondev.tiendita.presentation.util.QuantityControl
 import com.ardondev.tiendita.presentation.util.formatToUSD
 
@@ -41,14 +44,47 @@ fun AddSaleBottomSheet(
 ) {
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss, sheetState = sheetState
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.Transparent,
+        dragHandle = null
     ) {
-        SaleForm(price = price,
-            stock = stock,
-            modifier = Modifier.fillMaxWidth(),
-            onInserted = { price, quantity ->
-                onInserted(price, quantity)
-            })
+        Card(
+            shape = MaterialTheme.shapes.extraLarge,
+            modifier = Modifier.padding(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Column {
+
+                BottomSheetDefaults.DragHandle(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                /*
+                Text(
+                    text = stringResource(R.string.txt_add_sale),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                )
+
+                HorizontalDivider(Modifier.padding(top = 16.dp))
+
+                 */
+
+                SaleForm(price = price,
+                    stock = stock,
+                    modifier = Modifier.fillMaxWidth(),
+                    onInserted = { price, quantity ->
+                        onInserted(price, quantity)
+                    })
+            }
+        }
     }
 
 }
@@ -61,35 +97,28 @@ fun SaleForm(
     onInserted: (price: Double, quantity: Int) -> Unit,
 ) {
 
-    var priceState by remember { mutableStateOf(price.toString()) }
+    var priceState by remember { mutableStateOf(formatToUSD(price.toString())) }
     var validPrice by remember { mutableStateOf(true) }
     var quantityState = remember { mutableStateOf("1") }
     var quantity by remember { quantityState }
 
     Column(
-        modifier = modifier.padding(horizontal = 24.dp)
+        modifier = modifier
+            .padding(horizontal = 24.dp)
     ) {
 
-        //Title
-        Text(
-            text = stringResource(R.string.txt_add_sale),
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Spacer(Modifier.size(16.dp))
-
         //Price
-        OutlinedTextField(
+        CustomTextField(
             value = priceState,
             onValueChange = {
                 priceState = formatToUSD(it.ifEmpty { "1" })
                 validPrice = (priceState.isNotEmpty()) && (priceState.toDouble() > 0.0)
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            label = { Text(stringResource(R.string.txt_sale_price)) },
+            labelText = stringResource(R.string.txt_sale_price),
             singleLine = true,
-            leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = "")},
-            suffix = { Text("c/u") },
+            leadingIcon = Icons.Default.AttachMoney,
+            suffixText = "c/u",
             modifier = modifier
         )
 
@@ -115,9 +144,12 @@ fun SaleForm(
 
         //Button
         Button(
-            enabled = validPrice, onClick = {
+            enabled = validPrice,
+            onClick = {
                 onInserted(priceState.toDouble(), quantity.toInt())
-            }, modifier = Modifier
+            },
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier
                 .padding(vertical = 16.dp)
                 .align(Alignment.CenterHorizontally)
         ) {

@@ -14,7 +14,7 @@ interface SaleDao {
     @Insert
     suspend fun insert(sale: SaleEntity): Long
 
-    @Query("SELECT * FROM sales WHERE productId = :productId")
+    @Query("SELECT * FROM sales WHERE productId = :productId ORDER BY date DESC")
     fun getAllByProductId(productId: Long): Flow<List<SaleEntity>>
 
     @Query("SELECT SUM(total) FROM sales")

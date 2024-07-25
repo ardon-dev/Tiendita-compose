@@ -14,8 +14,8 @@ fun getOnlyDigits(input: String, decimal: Boolean = false): String {
 
 fun formatToUSD(input: String): String {
     val cleanString = getOnlyDigits(input, true)
-    if (cleanString.isEmpty()) return ""
+    if (cleanString.isEmpty()) return "0.00"
     val number = cleanString.toDoubleOrNull() ?: return ""
-    val decimalFormat = DecimalFormat("#,###,##0.00", DecimalFormatSymbols(Locale.US))
+    val decimalFormat = DecimalFormat("######0.00", DecimalFormatSymbols(Locale.US))
     return decimalFormat.format(number)
 }
