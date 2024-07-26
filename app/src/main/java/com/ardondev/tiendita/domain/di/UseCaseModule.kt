@@ -6,6 +6,7 @@ import com.ardondev.tiendita.domain.usecase.products.GetAllProductsUseCase
 import com.ardondev.tiendita.domain.usecase.products.GetProductByIdUseCase
 import com.ardondev.tiendita.domain.usecase.products.InsertProductUseCase
 import com.ardondev.tiendita.domain.usecase.products.UpdateProductUseCase
+import com.ardondev.tiendita.domain.usecase.sales.DeleteSaleUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetAllSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetTotalOfSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetTotalOfSalesUseCase
@@ -75,8 +76,19 @@ class UseCaseModule {
     }
 
     @Provides
-    fun provideUpdateSaleUseCase(salesRepository: SaleRepository, productRepository: ProductRepository): UpdateSaleUseCase {
+    fun provideUpdateSaleUseCase(
+        salesRepository: SaleRepository,
+        productRepository: ProductRepository,
+    ): UpdateSaleUseCase {
         return UpdateSaleUseCase(salesRepository, productRepository)
+    }
+
+    @Provides
+    fun provideDeleteSaleUseCase(
+        saleRepository: SaleRepository,
+        productRepository: ProductRepository,
+    ): DeleteSaleUseCase {
+        return DeleteSaleUseCase(saleRepository, productRepository)
     }
 
 }

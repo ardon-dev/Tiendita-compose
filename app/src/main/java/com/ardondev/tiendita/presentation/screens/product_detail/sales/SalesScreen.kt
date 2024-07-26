@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccessTime
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.MonetizationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -22,8 +24,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -74,13 +79,6 @@ fun SalesScreen(
 
     /** Insert sale events **/
 
-    viewModel.insertSaleResult.observe(
-        LocalLifecycleOwner.current,
-        SingleEvent.SingleEventObserver { id ->
-            id?.let { scope.launch { snackBarHostState.showSnackbar("Inserted: $id") } }
-        }
-    )
-
     viewModel.insertSaleError.observe(
         LocalLifecycleOwner.current,
         SingleEvent.SingleEventObserver { error ->
@@ -90,17 +88,6 @@ fun SalesScreen(
         })
 
     /** Update sale events **/
-
-    viewModel.updateSaleResult.observe(
-        LocalLifecycleOwner.current,
-        SingleEvent.SingleEventObserver { rows ->
-            rows?.let {
-                if (rows < 0) {
-                    scope.launch { snackBarHostState.showSnackbar("No se actualizó.") }
-                }
-            }
-        }
-    )
 
     viewModel.updateSaleError.observe(
         LocalLifecycleOwner.current,
@@ -129,6 +116,9 @@ fun SalesScreen(
                     onSaleClick = { s ->
                         viewModel.setSaleSelectedValue(s)
                         viewModel.setEditBottomSheetValue(true)
+                    },
+                    onDelete = { s ->
+                        viewModel.deleteSale(s)
                     }
                 )
             } else {
@@ -174,11 +164,12 @@ fun SalesScreen(
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SalesList(
     sales: List<Sale>,
     onSaleClick: (Sale) -> Unit,
+    onDelete: (Sale) -> Unit,
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -209,9 +200,50 @@ fun SalesList(
             items = sales,
             key = { it.id ?: -1 }
         ) { sale ->
-            SaleItem(sale) {
-                onSaleClick(sale)
-            }
+            val dismissState = rememberSwipeToDismissBoxState(
+                confirmValueChange = {
+                    when (it) {
+                        SwipeToDismissBoxValue.EndToStart -> {
+                            onDelete(sale)
+                        }
+
+                        else -> return@rememberSwipeToDismissBoxState false
+                    }
+                    return@rememberSwipeToDismissBoxState true
+                },
+                positionalThreshold = { it * .50f }
+            )
+
+            SwipeToDismissBox(
+                state = dismissState,
+                enableDismissFromStartToEnd = false,
+                backgroundContent = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                color = MaterialTheme.colorScheme.errorContainer,
+                                shape = MaterialTheme.shapes.medium
+                            )
+                            .padding(8.dp)
+
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(end = 16.dp)
+                        )
+                    }
+                },
+                content = {
+                    SaleItem(sale) {
+                        onSaleClick(sale)
+                    }
+                }
+            )
         }
     }
 }

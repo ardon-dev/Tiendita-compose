@@ -15,4 +15,6 @@ interface SaleRepository {
 
     suspend fun update(sale: Sale): Int
 
+    suspend fun delete(sale: Sale): Int
+
 }

@@ -17,6 +17,7 @@ import com.ardondev.tiendita.domain.model.Product
 import com.ardondev.tiendita.domain.model.Sale
 import com.ardondev.tiendita.domain.usecase.products.GetProductByIdUseCase
 import com.ardondev.tiendita.domain.usecase.products.UpdateProductUseCase
+import com.ardondev.tiendita.domain.usecase.sales.DeleteSaleUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetAllSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetTotalOfSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.InsertSaleUseCase
@@ -28,6 +29,7 @@ import com.ardondev.tiendita.presentation.util.formatToUSD
 import com.ardondev.tiendita.presentation.util.getCurrentDate
 import com.ardondev.tiendita.presentation.util.getCurrentTime
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -50,7 +52,8 @@ class ProductDetailViewModel @Inject constructor(
     private val insertSaleUseCase: InsertSaleUseCase,
     private val getAllSalesByProductIdUseCase: GetAllSalesByProductIdUseCase,
     private val getTotalOfSalesByProductIdUseCase: GetTotalOfSalesByProductIdUseCase,
-    private val updateSaleUseCase: UpdateSaleUseCase
+    private val updateSaleUseCase: UpdateSaleUseCase,
+    private val deleteSaleUseCase: DeleteSaleUseCase
 ) : ViewModel() {
 
     /** Loading **/
@@ -337,6 +340,21 @@ class ProductDetailViewModel @Inject constructor(
                 _updateSaleError.value = SingleEvent(result.exceptionOrNull())
                 loading = false
                 showEditBottomSheet = false
+            }
+        }
+    }
+
+    /** Delete sale **/
+
+    fun deleteSale(sale: Sale) {
+        viewModelScope.launch {
+            loading = true
+            val result = deleteSaleUseCase(sale)
+            if (result.isSuccess) {
+                loading = false
+            } else {
+                _updateSaleError.value = SingleEvent(result.exceptionOrNull())
+                loading = false
             }
         }
     }

@@ -11,6 +11,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AttachMoney
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -58,10 +61,6 @@ fun EditableProductForm(
             .padding(vertical = 16.dp, horizontal = 24.dp)
             .verticalScroll(rememberScrollState())
     ) {
-
-        if (viewModel.loading) {
-            LoadingView()
-        }
 
         //Name
         CustomTextField(

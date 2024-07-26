@@ -37,4 +37,8 @@ class SaleRepositoryImpl @Inject constructor(
         return saleDao.update(sale.toEntity())
     }
 
+    override suspend fun delete(sale: Sale): Int {
+        return saleDao.delete(sale.toEntity())
+    }
+
 }
