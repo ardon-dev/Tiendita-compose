@@ -148,6 +148,11 @@ class ProductDetailViewModel @Inject constructor(
 
         //Make sales screen action
         if (tabPosition == 0) {
+            if ((product?.stock ?: 0) <= 0) {
+                _insertSaleError.value = SingleEvent(Throwable("No hay productos en Stock"))
+                return
+            }
+
             showAddBottomSheet = true
             return
         }

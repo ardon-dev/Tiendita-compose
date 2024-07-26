@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ardondev.tiendita.R
@@ -110,6 +111,15 @@ fun ProductForm(
 
         BottomSheetDefaults.DragHandle(
             modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+
+        Text(
+            text = "Agregar producto",
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
         )
 
         //Name

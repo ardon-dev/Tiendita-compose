@@ -11,10 +11,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ardondev.tiendita.domain.model.Sale
 
@@ -46,6 +48,15 @@ fun EditSaleBottomSheet(
 
                 BottomSheetDefaults.DragHandle(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                Text(
+                    text = "Actualizar venta",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
                 )
 
                 SaleForm(

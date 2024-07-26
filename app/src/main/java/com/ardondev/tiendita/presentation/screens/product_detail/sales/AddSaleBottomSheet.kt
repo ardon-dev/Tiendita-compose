@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ardondev.tiendita.R
 import com.ardondev.tiendita.presentation.util.CustomTextField
@@ -63,20 +64,14 @@ fun AddSaleBottomSheet(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                /*
                 Text(
-                    text = stringResource(R.string.txt_add_sale),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
+                    text = "Nueva venta",
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .fillMaxWidth()
+                        .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
                 )
-
-                HorizontalDivider(Modifier.padding(top = 16.dp))
-
-                 */
 
                 SaleForm(price = price,
                     stock = stock,
