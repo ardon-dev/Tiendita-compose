@@ -84,7 +84,7 @@ fun AddSaleBottomSheet(
                     onInserted = { price, quantity ->
                         onInserted(price, quantity)
                     },
-                    currentQuantity = 1
+                    currentQuantity = null
                 )
             }
         }
@@ -109,7 +109,7 @@ fun SaleForm(
         )
     }
     var quantity by remember { quantityState }
-    val newStock = if (currentQuantity != null) stock + currentQuantity else stock
+    val newStock = if (currentQuantity != null) (stock + currentQuantity.toInt()) else stock //7
 
     Column(
         modifier = modifier
@@ -163,7 +163,7 @@ fun SaleForm(
                 .padding(vertical = 16.dp)
                 .align(Alignment.CenterHorizontally)
         ) {
-            Text("Agregar")
+            Text(if (currentQuantity != null) "Actualizar" else "Agregar")
         }
 
     }
