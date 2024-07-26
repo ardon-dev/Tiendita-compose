@@ -9,7 +9,7 @@ class GetAllSalesByProductIdUseCase @Inject constructor(
     private val saleRepository: SaleRepository,
 ) {
 
-    operator fun invoke(productId: Long): Flow<List<Sale>> =
-        saleRepository.getAllByProductId(productId)
+    operator fun invoke(productId: Long, startDate: String, endDate: String): Flow<List<Sale>> =
+        saleRepository.getAllByProductId(productId, startDate, endDate)
 
 }

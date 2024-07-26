@@ -7,7 +7,7 @@ interface SaleRepository {
 
     suspend fun insert(sale: Sale): Long
 
-    fun getAllByProductId(productId: Long): Flow<List<Sale>>
+    fun getAllByProductId(productId: Long, startDate: String, endDate: String): Flow<List<Sale>>
 
     fun getTotalOfSales(): Flow<Double?>
 

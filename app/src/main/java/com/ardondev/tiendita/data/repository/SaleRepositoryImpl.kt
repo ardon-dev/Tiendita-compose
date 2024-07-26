@@ -17,8 +17,8 @@ class SaleRepositoryImpl @Inject constructor(
         return saleDao.insert(sale.toEntity())
     }
 
-    override fun getAllByProductId(productId: Long): Flow<List<Sale>> {
-        return saleDao.getAllByProductId(productId).map { sales ->
+    override fun getAllByProductId(productId: Long, startDate: String, endDate: String): Flow<List<Sale>> {
+        return saleDao.getAllByProductId(productId, startDate, endDate).map { sales ->
             sales.map { sale ->
                 sale.toModel()
             }

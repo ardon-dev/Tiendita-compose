@@ -6,13 +6,14 @@ data class Sale(
     val quantity: Int,
     val total: Double,
     val productId: Long,
-    val date: String
+    val date: String,
+    val time: String
 ) {
 
     companion object {
 
         fun getEmptySale(): Sale {
-            return Sale(null, 0.0, 0, 0.0, 0L, "")
+            return Sale(null, 0.0, 0, 0.0, 0L, "", "")
         }
 
     }

@@ -178,7 +178,8 @@ fun ProductForm(
                     id = null,
                     name = nameState,
                     price = priceState.toDouble(),
-                    stock = stockState.toInt()
+                    stock = stockState.toInt(),
+                    totalSales = null
                 )
                 onInserted(product)
             }

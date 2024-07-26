@@ -1,67 +1,54 @@
 package com.ardondev.tiendita.presentation.screens.product_detail.sales
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.MonetizationOn
-import androidx.compose.material.icons.rounded.AttachMoney
+import androidx.compose.material.icons.rounded.AccessTime
+import androidx.compose.material.icons.rounded.MonetizationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.SheetValue
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.ardondev.tiendita.R
 import com.ardondev.tiendita.domain.model.Sale
 import com.ardondev.tiendita.presentation.screens.product_detail.ProductDetailViewModel
 import com.ardondev.tiendita.presentation.util.ErrorView
+import com.ardondev.tiendita.presentation.util.HH_mm_ss
 import com.ardondev.tiendita.presentation.util.LoadingView
-import com.ardondev.tiendita.presentation.util.MMMM_d_h_mm_a
-import com.ardondev.tiendita.presentation.util.MMMM_d_yyyy_h_mm_a
 import com.ardondev.tiendita.presentation.util.SingleEvent
-import com.ardondev.tiendita.presentation.util.dd_MM_yyyy_h_mm_a
-import com.ardondev.tiendita.presentation.util.formatDate
+import com.ardondev.tiendita.presentation.util.formatTime
 import com.ardondev.tiendita.presentation.util.formatToUSD
+import com.ardondev.tiendita.presentation.util.h_mm_a
 import kotlinx.coroutines.launch
-import java.lang.Error
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -138,12 +125,35 @@ fun SalesScreen(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SalesList(sales: List<Sale>) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(16.dp)
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            bottom = 16.dp
+        )
     ) {
+        stickyHeader {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                val total = formatToUSD(sales.sumOf { it.total }.toString())
+                Text(
+                    text = "Ingresos de este día: $$total",
+                    modifier = Modifier
+                        .padding(16.dp)
+                    ,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            }
+        }
         items(
             items = sales,
             key = { it.id ?: -1 }
@@ -160,107 +170,88 @@ fun SaleItem(sale: Sale) {
             .fillMaxWidth()
     ) {
         Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
                     vertical = 10.dp,
                     horizontal = 16.dp
-                ),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+                )
         ) {
 
-            //Icon
             Icon(
-                imageVector = Icons.Rounded.AttachMoney,
-                contentDescription = "",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
+                imageVector = Icons.Rounded.MonetizationOn,
+                contentDescription = null
             )
-
-            Spacer(Modifier.size(10.dp))
 
             //Info
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
+                    .padding(start = 16.dp)
             ) {
 
-                //Sale date
-                val date = formatDate(
-                    input = sale.date,
-                    outputFormat = MMMM_d_h_mm_a,
-                    legibleDate = true
-                )
                 Text(
-                    text = date,
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.fillMaxWidth()
+                    text = "Cantidad: ${sale.quantity}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Normal
                 )
-                Spacer(Modifier.size(8.dp))
-                Row {
-                    //Quantity
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f)
-                    ) {
-                        Text(
-                            text = "Qty: ${sale.quantity}",
-                            style = MaterialTheme.typography.labelMedium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp)
-                        )
-                    }
 
-                    //Price unity
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(start = 8.dp)
-                    ) {
-                        Text(
-                            text = "$${formatToUSD(sale.amount.toString())} c/u",
-                            style = MaterialTheme.typography.labelMedium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp)
-                        )
-                    }
+                Text(
+                    text = "Precio: $${formatToUSD(sale.amount.toString())} c/u",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Normal
+                )
 
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        ),
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.AccessTime,
+                        contentDescription = "",
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(start = 8.dp)
-                    ) {
-                        Text(
-                            text = "+ $${formatToUSD(sale.total.toString())}",
-                            style = MaterialTheme.typography.labelMedium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
+                            .size(12.dp)
+                            .padding(bottom = 1.dp)
+                    )
+                    Text(
+                        text = formatTime(
+                            input = sale.time,
+                            inputFormat = HH_mm_ss,
+                            outputFormat = h_mm_a
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                            .padding(start = 4.dp)
+                            .align(Alignment.CenterVertically)
+                    )
                 }
 
+            }
+
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = MaterialTheme.shapes.medium
+                    )
+            ) {
+                Text(
+                    text = "+ $${formatToUSD(sale.total.toString())}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(
+                        vertical = 4.dp,
+                        horizontal = 6.dp
+                    )
+                )
             }
 
         }

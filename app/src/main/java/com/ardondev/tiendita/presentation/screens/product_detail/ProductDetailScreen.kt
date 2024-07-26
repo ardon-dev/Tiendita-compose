@@ -1,21 +1,24 @@
 package com.ardondev.tiendita.presentation.screens.product_detail
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.Category
+import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.PointOfSale
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,18 +28,20 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
@@ -49,8 +54,15 @@ import androidx.navigation.NavHostController
 import com.ardondev.tiendita.presentation.screens.product_detail.product.ProductScreen
 import com.ardondev.tiendita.presentation.screens.product_detail.product.ProductUiState
 import com.ardondev.tiendita.presentation.screens.product_detail.sales.SalesScreen
+import com.ardondev.tiendita.presentation.util.MMMM_d
 import com.ardondev.tiendita.presentation.util.SingleEvent
+import com.ardondev.tiendita.presentation.util.formatDate
+import com.ardondev.tiendita.presentation.util.yyyy_MM_dd
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +73,10 @@ fun ProductDetailScreen(
 ) {
 
     val scope = rememberCoroutineScope()
+    var datePickerState = rememberDatePickerState()
+    var showDatePicker by remember {
+        mutableStateOf(false)
+    }
     val snackBarHostState = remember { SnackbarHostState() }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val uiState by produceState<ProductUiState>(
@@ -102,7 +118,11 @@ fun ProductDetailScreen(
         topBar = {
             ProductDetailTopAppBar(
                 navHostController = navHostController,
-                title = viewModel.product?.name.orEmpty()
+                title = viewModel.product?.name.orEmpty(),
+                viewModel = viewModel,
+                onDateClick = {
+                    showDatePicker = true
+                }
             )
         },
         bottomBar = { ProductDetailBottomAppBar(viewModel) },
@@ -162,6 +182,48 @@ fun ProductDetailScreen(
         }
     }
 
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = {
+                showDatePicker = false
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            viewModel.setStartDateValue(millis.formatMillis())
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text(text = "Aceptar")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDatePicker = false
+                    }
+                ) {
+                    Text(text = "Cancelar")
+                }
+            }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                showModeToggle = false
+            )
+        }
+    }
+
+}
+
+private fun Long.formatMillis(): String {
+    val time =
+        SimpleDateFormat(yyyy_MM_dd, Locale.getDefault()).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date(this))
+    return time
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -169,8 +231,13 @@ fun ProductDetailScreen(
 fun ProductDetailTopAppBar(
     navHostController: NavHostController,
     title: String,
+    viewModel: ProductDetailViewModel,
+    onDateClick: () -> Unit,
 ) {
-    TopAppBar(title = { Text(title) },
+    TopAppBar(
+        title = {
+            Text(title)
+        },
         navigationIcon = {
             IconButton(
                 onClick = {
@@ -182,7 +249,48 @@ fun ProductDetailTopAppBar(
                     contentDescription = "Back"
                 )
             }
+        },
+        actions = {
+            if (viewModel.tabPosition == 0) {
+                DateFilter(
+                    onDateClick = onDateClick,
+                    viewModel = viewModel
+                )
+            }
         }
+    )
+}
+
+@Composable
+fun DateFilter(
+    onDateClick: () -> Unit,
+    viewModel: ProductDetailViewModel,
+) {
+    AssistChip(
+        onClick = {
+            onDateClick()
+        },
+        label = {
+            val startDate = formatDate(
+                input = viewModel.startDate.collectAsState().value,
+                inputFormat = yyyy_MM_dd,
+                outputFormat = MMMM_d
+            )
+            val endDate = formatDate(viewModel.endDate.collectAsState().value, yyyy_MM_dd, MMMM_d)
+            val dateText = if (startDate == endDate) startDate else "$startDate - $endDate"
+            Text(
+                text = dateText,
+                style = MaterialTheme.typography.labelMedium
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Rounded.DateRange,
+                contentDescription = null,
+                Modifier.size(18.dp)
+            )
+        },
+        modifier = Modifier.padding(end = 16.dp)
     )
 }
 
@@ -194,11 +302,11 @@ fun ProductDetailBottomAppBar(
         actions = {
             if (viewModel.tabPosition == 0) {
                 Text(
-                    text = "Vendido: $${viewModel.totalSales}",
-                    style = MaterialTheme.typography.headlineSmall,
+                    text = "Ingreso total: $${viewModel.totalSales.collectAsState().value}",
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         },
@@ -226,6 +334,14 @@ fun ProductDetailFAB(
             imageVector = icon, contentDescription = "Edit"
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateRangePickerDialog(
+    state: DatePickerState,
+) {
+
 }
 
 

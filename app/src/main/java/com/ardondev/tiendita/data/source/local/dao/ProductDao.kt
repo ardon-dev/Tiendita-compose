@@ -13,7 +13,12 @@ interface ProductDao {
     @Insert
     suspend fun insert(product: ProductEntity): Long
 
-    @Query("SELECT * FROM products")
+    @Query("""SELECT 
+            products.*, 
+            IFNULL(SUM(sales.total), 0) AS totalSales
+        FROM products
+        LEFT JOIN sales ON products.id = sales.productId
+        GROUP BY products.id""")
     fun getAll(): Flow<List<ProductEntity>>
 
     @Query("SELECT * FROM products WHERE id = :productId")

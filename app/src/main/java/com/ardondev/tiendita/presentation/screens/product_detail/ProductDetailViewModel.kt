@@ -24,12 +24,18 @@ import com.ardondev.tiendita.presentation.screens.product_detail.product.Product
 import com.ardondev.tiendita.presentation.screens.product_detail.sales.SalesUiState
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import com.ardondev.tiendita.presentation.util.formatToUSD
-import com.ardondev.tiendita.presentation.util.getCurrentDateTime
+import com.ardondev.tiendita.presentation.util.getCurrentDate
+import com.ardondev.tiendita.presentation.util.getCurrentTime
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -41,7 +47,7 @@ class ProductDetailViewModel @Inject constructor(
     getProductByIdUseCase: GetProductByIdUseCase,
     private val updateProductUseCase: UpdateProductUseCase,
     private val insertSaleUseCase: InsertSaleUseCase,
-    getAllSalesByProductIdUseCase: GetAllSalesByProductIdUseCase,
+    private val getAllSalesByProductIdUseCase: GetAllSalesByProductIdUseCase,
     private val getTotalOfSalesByProductIdUseCase: GetTotalOfSalesByProductIdUseCase,
 ) : ViewModel() {
 
@@ -119,7 +125,7 @@ class ProductDetailViewModel @Inject constructor(
                 fabIcon = Icons.Default.Done
             } else {
                 //If content is the same, do not update
-                val currentProduct = Product(productId, name, stock.toInt(), price.toDouble())
+                val currentProduct = Product(productId, name, stock.toInt(), price.toDouble(), null)
                 if (product == currentProduct) {
                     fabIcon = Icons.Default.Edit
                     return
@@ -187,9 +193,48 @@ class ProductDetailViewModel @Inject constructor(
         }
     }
 
+    /** Sales dates **/
+
+    var startDate = MutableStateFlow(getCurrentDate())
+        private set
+
+    fun setStartDateValue(value: String) {
+        startDate.value = value
+        endDate.value = value
+    }
+
+    var endDate = MutableStateFlow(getCurrentDate())
+        private set
+
     /** Get sales **/
 
-    val salesUiState: StateFlow<SalesUiState> = getAllSalesByProductIdUseCase(productId)
+    var salesUiState: StateFlow<SalesUiState> = combine(
+        startDate.filterNotNull(),
+        endDate.filterNotNull()
+    ) { a, b ->
+        Pair(a, b)
+    }
+        .flatMapLatest { (a, b) ->
+            getAllSalesByProductIdUseCase(
+                productId,
+                a,
+                b
+            )
+                .map { SalesUiState.Success(it) as SalesUiState }
+                .catch { emit(SalesUiState.Error(it.message.orEmpty())) }
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            SalesUiState.Loading
+        )
+
+    /*
+    var salesUiState: StateFlow<SalesUiState> = getAllSalesByProductIdUseCase(
+        productId = productId,
+        startDate = startDate,
+        endDate = endDate
+    )
         .map { SalesUiState.Success(it) as SalesUiState }
         .catch { emit(SalesUiState.Error(it.message.orEmpty())) }
         .stateIn(
@@ -197,19 +242,23 @@ class ProductDetailViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             SalesUiState.Loading
         )
+     */
 
     /** Get all sales **/
 
-    var totalSales by mutableStateOf("0.00")
+    private var _totalSales = MutableStateFlow("0.00")
         private set
+
+    val totalSales: StateFlow<String> = _totalSales.asStateFlow()
 
     private fun getTotalOfSales() {
         viewModelScope.launch {
-            getTotalOfSalesByProductIdUseCase(productId).collectLatest { total ->
-                total?.let {
-                    totalSales = formatToUSD(total.toString())
+            getTotalOfSalesByProductIdUseCase(productId)
+                .collectLatest { total ->
+                    total?.let {
+                        _totalSales.value = formatToUSD(total.toString())
+                    }
                 }
-            }
         }
     }
 
@@ -230,7 +279,8 @@ class ProductDetailViewModel @Inject constructor(
                 quantity = quantity,
                 total = (price * quantity),
                 productId = productId,
-                date = getCurrentDateTime()
+                date = getCurrentDate(),
+                time = getCurrentTime()
             )
             val result = insertSaleUseCase(sale)
             if (result.isSuccess) {

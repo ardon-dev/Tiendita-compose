@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -282,6 +284,7 @@ fun ProductItem(
             Column(
                 modifier = Modifier
                     .padding(start = 16.dp)
+                    .weight(1f)
             ) {
                 //Product name
                 Text(
@@ -297,6 +300,28 @@ fun ProductItem(
                 Text(
                     text = "Precio unitario: $${formatToUSD(product.price.toString())}",
                     style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = MaterialTheme.shapes.medium
+                    )
+            ) {
+                Text(
+                    text = "$${formatToUSD(product.totalSales.toString())}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(
+                        vertical = 4.dp,
+                        horizontal = 6.dp
+                    )
                 )
             }
 

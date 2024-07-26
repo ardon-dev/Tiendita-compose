@@ -8,19 +8,19 @@ import com.ardondev.tiendita.domain.model.Sale
 /** Product **/
 
 fun ProductEntity.toModel(): Product {
-    return Product(id, name, stock, price)
+    return Product(id, name, stock, price, totalSales)
 }
 
 fun Product.toEntity(): ProductEntity {
-    return ProductEntity(id, name, stock, price)
+    return ProductEntity(id, name, stock, price, totalSales)
 }
 
 /** Sale **/
 
 fun SaleEntity.toModel(): Sale {
-    return Sale(id, amount, quantity, total, productId, date)
+    return Sale(id, amount, quantity, total, productId, date, time)
 }
 
 fun Sale.toEntity(): SaleEntity {
-    return SaleEntity(id, amount, quantity, total, productId, date)
+    return SaleEntity(id, amount, quantity, total, productId, date, time)
 }
