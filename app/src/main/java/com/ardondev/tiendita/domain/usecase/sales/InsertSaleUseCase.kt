@@ -17,7 +17,7 @@ class InsertSaleUseCase @Inject constructor(
             //Insert sale
             val result = saleRepository.insert(sale)
             //Update product stock
-            productRepository.updateStock(
+            productRepository.decreaseStock(
                 productId = sale.productId,
                 quantity = sale.quantity
             )

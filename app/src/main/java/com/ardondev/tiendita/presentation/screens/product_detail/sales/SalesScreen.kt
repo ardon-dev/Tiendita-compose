@@ -1,5 +1,6 @@
 package com.ardondev.tiendita.presentation.screens.product_detail.sales
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +21,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -30,11 +30,8 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -59,7 +56,10 @@ fun SalesScreen(
 
     val scope = rememberCoroutineScope()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val sheetState = rememberModalBottomSheetState(
+    val addSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    val editSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
     val uiState by produceState<SalesUiState>(
@@ -89,6 +89,28 @@ fun SalesScreen(
             }
         })
 
+    /** Update sale events **/
+
+    viewModel.updateSaleResult.observe(
+        LocalLifecycleOwner.current,
+        SingleEvent.SingleEventObserver { rows ->
+            rows?.let {
+                if (rows < 0) {
+                    scope.launch { snackBarHostState.showSnackbar("No se actualizó.") }
+                }
+            }
+        }
+    )
+
+    viewModel.updateSaleError.observe(
+        LocalLifecycleOwner.current,
+        SingleEvent.SingleEventObserver { error ->
+            error?.message?.let {
+                scope.launch { snackBarHostState.showSnackbar(it) }
+            }
+        }
+    )
+
     /** Sales UI **/
 
     when (uiState) {
@@ -102,7 +124,13 @@ fun SalesScreen(
         is SalesUiState.Success -> {
             val sales = (uiState as SalesUiState.Success).sales
             if (sales.isNotEmpty()) {
-                SalesList(sales)
+                SalesList(
+                    sales = sales,
+                    onSaleClick = { s ->
+                        viewModel.setSaleSelectedValue(s)
+                        viewModel.setEditBottomSheetValue(true)
+                    }
+                )
             } else {
                 ErrorView("No hay ventas.")
             }
@@ -111,23 +139,47 @@ fun SalesScreen(
 
     /** Add sale **/
 
-    if (viewModel.showBottomSheet) {
+    if (viewModel.showAddBottomSheet) {
         AddSaleBottomSheet(
             price = viewModel.product?.price ?: 0.0,
             stock = viewModel.product?.stock ?: 0,
-            sheetState = sheetState,
-            onDismiss = { viewModel.setShowBottomSheetValue(false) },
+            sheetState = addSheetState,
+            onDismiss = { viewModel.setShowAddBottomSheetValue(false) },
             onInserted = { price, quantity ->
                 viewModel.insertSale(price, quantity)
             }
         )
     }
 
+    if (viewModel.showEditBottomSheet) {
+        viewModel.saleSelected?.let { saleSelected ->
+            EditSaleBottomSheet(
+                sale = saleSelected,
+                stock = viewModel.product?.stock ?: 0,
+                onDismiss = {
+                    viewModel.setEditBottomSheetValue(false)
+                },
+                sheetState = editSheetState,
+                onUpdated = { sale ->
+                    Log.d("TAG3", "price: ${sale.amount}, quantity: ${sale.quantity}")
+                    viewModel.updateSale(
+                        sale = sale,
+                        oldQuantity = saleSelected.quantity
+                    )
+                },
+                currentQuantity = saleSelected.quantity
+            )
+        }
+    }
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SalesList(sales: List<Sale>) {
+fun SalesList(
+    sales: List<Sale>,
+    onSaleClick: (Sale) -> Unit,
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(
@@ -147,8 +199,7 @@ fun SalesList(sales: List<Sale>) {
                 Text(
                     text = "Ingresos de este día: $$total",
                     modifier = Modifier
-                        .padding(16.dp)
-                    ,
+                        .padding(16.dp),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onPrimary,
                 )
@@ -158,14 +209,22 @@ fun SalesList(sales: List<Sale>) {
             items = sales,
             key = { it.id ?: -1 }
         ) { sale ->
-            SaleItem(sale)
+            SaleItem(sale) {
+                onSaleClick(sale)
+            }
         }
     }
 }
 
 @Composable
-fun SaleItem(sale: Sale) {
+fun SaleItem(
+    sale: Sale,
+    onSaleClick: (Sale) -> Unit,
+) {
     Card(
+        onClick = {
+            onSaleClick(sale)
+        },
         modifier = Modifier
             .fillMaxWidth()
     ) {
@@ -256,10 +315,4 @@ fun SaleItem(sale: Sale) {
 
         }
     }
-}
-
-@Preview
-@Composable
-fun SaleItemPreview() {
-    SaleItem(sale = Sale.getEmptySale())
 }

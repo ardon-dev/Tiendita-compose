@@ -20,6 +20,7 @@ import com.ardondev.tiendita.domain.usecase.products.UpdateProductUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetAllSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.GetTotalOfSalesByProductIdUseCase
 import com.ardondev.tiendita.domain.usecase.sales.InsertSaleUseCase
+import com.ardondev.tiendita.domain.usecase.sales.UpdateSaleUseCase
 import com.ardondev.tiendita.presentation.screens.product_detail.product.ProductUiState
 import com.ardondev.tiendita.presentation.screens.product_detail.sales.SalesUiState
 import com.ardondev.tiendita.presentation.util.SingleEvent
@@ -49,6 +50,7 @@ class ProductDetailViewModel @Inject constructor(
     private val insertSaleUseCase: InsertSaleUseCase,
     private val getAllSalesByProductIdUseCase: GetAllSalesByProductIdUseCase,
     private val getTotalOfSalesByProductIdUseCase: GetTotalOfSalesByProductIdUseCase,
+    private val updateSaleUseCase: UpdateSaleUseCase
 ) : ViewModel() {
 
     /** Loading **/
@@ -90,12 +92,20 @@ class ProductDetailViewModel @Inject constructor(
 
     /** UI states **/
 
-    var showBottomSheet by mutableStateOf(false)
+    var showAddBottomSheet by mutableStateOf(false)
         private set
 
-    fun setShowBottomSheetValue(value: Boolean) {
-        showBottomSheet = value
+    fun setShowAddBottomSheetValue(value: Boolean) {
+        showAddBottomSheet = value
     }
+
+    var showEditBottomSheet by mutableStateOf(false)
+        private set
+
+    fun setEditBottomSheetValue(value: Boolean) {
+        showEditBottomSheet = value
+    }
+
 
     var tabPosition by mutableIntStateOf(0)
         private set
@@ -138,7 +148,7 @@ class ProductDetailViewModel @Inject constructor(
 
         //Make sales screen action
         if (tabPosition == 0) {
-            showBottomSheet = true
+            showAddBottomSheet = true
             return
         }
 
@@ -286,11 +296,42 @@ class ProductDetailViewModel @Inject constructor(
             if (result.isSuccess) {
                 _insertSaleResult.value = SingleEvent(result.getOrNull())
                 loading = false
-                showBottomSheet = false
+                showAddBottomSheet = false
             } else {
                 _insertSaleError.value = SingleEvent(result.exceptionOrNull())
                 loading = false
-                showBottomSheet = false
+                showAddBottomSheet = false
+            }
+        }
+    }
+
+    /** Update sale **/
+
+    var saleSelected by mutableStateOf<Sale?>(null)
+        private set
+
+    fun setSaleSelectedValue(value: Sale?) {
+        saleSelected = value
+    }
+
+    private val _updateSaleResult = MutableLiveData<SingleEvent<Int?>>()
+    val updateSaleResult: LiveData<SingleEvent<Int?>> = _updateSaleResult
+
+    private val _updateSaleError = MutableLiveData<SingleEvent<Throwable?>>()
+    val updateSaleError: LiveData<SingleEvent<Throwable?>> = _updateSaleError
+
+    fun updateSale(sale: Sale, oldQuantity: Int) {
+        viewModelScope.launch {
+            loading = true
+            val result = updateSaleUseCase(sale, oldQuantity)
+            if (result.isSuccess) {
+                _updateSaleResult.value = SingleEvent(result.getOrNull())
+                loading = false
+                showEditBottomSheet = false
+            } else {
+                _updateSaleError.value = SingleEvent(result.exceptionOrNull())
+                loading = false
+                showEditBottomSheet = false
             }
         }
     }

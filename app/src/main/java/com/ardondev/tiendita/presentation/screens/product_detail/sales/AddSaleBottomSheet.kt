@@ -1,5 +1,6 @@
 package com.ardondev.tiendita.presentation.screens.product_detail.sales
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -82,7 +83,9 @@ fun AddSaleBottomSheet(
                     modifier = Modifier.fillMaxWidth(),
                     onInserted = { price, quantity ->
                         onInserted(price, quantity)
-                    })
+                    },
+                    currentQuantity = 1
+                )
             }
         }
     }
@@ -95,12 +98,18 @@ fun SaleForm(
     stock: Int,
     modifier: Modifier,
     onInserted: (price: Double, quantity: Int) -> Unit,
+    currentQuantity: Int? = null
 ) {
 
     var priceState by remember { mutableStateOf(formatToUSD(price.toString())) }
     var validPrice by remember { mutableStateOf(true) }
-    var quantityState = remember { mutableStateOf("1") }
+    var quantityState = remember {
+        mutableStateOf(
+            currentQuantity?.toString() ?: "1"
+        )
+    }
     var quantity by remember { quantityState }
+    val newStock = if (currentQuantity != null) stock + currentQuantity else stock
 
     Column(
         modifier = modifier
@@ -132,12 +141,12 @@ fun SaleForm(
                 }
             },
             onPlus = {
-                if (quantity.toInt() < stock) {
+                if (quantity.toInt() < newStock) {
                     quantity = quantity.toInt().plus(1).toString()
                 }
             },
             quantity = quantity.toInt(),
-            stock = stock,
+            stock = newStock,
             modifier = modifier,
             value = quantityState
         )
@@ -146,6 +155,7 @@ fun SaleForm(
         Button(
             enabled = validPrice,
             onClick = {
+                Log.d("TAG", "price: ${priceState}, quantity: ${quantity}")
                 onInserted(priceState.toDouble(), quantity.toInt())
             },
             shape = MaterialTheme.shapes.medium,
