@@ -1,6 +1,7 @@
 package com.ardondev.tiendita.presentation.util
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -102,72 +103,77 @@ fun CustomTextField(
     enabled: Boolean = true,
     iconsTint: Color? = null,
 ) {
-    // LABEL //
-    Text(
-        text = labelText,
-        style = MaterialTheme.typography.labelMedium,
-        modifier = modifier
-            .padding(
-                start = 12.dp,
-                bottom = 6.dp
-            )
-    )
-    //TEXT FIELD //
-    OutlinedTextField(
-        value = value,
-        enabled = enabled,
-        singleLine = singleLine,
-        suffix = suffixText?.let {
-            {
-                Text(it)
-            }
-        },
-        prefix = prefixText?.let {
-            {
-                Text(it)
-            }
-        },
-        placeholder = placeHolderText?.let {
-            {
-                Text(it)
-            }
-        },
-        keyboardOptions = keyboardOptions,
-        onValueChange = { onValueChange(it) },
-        modifier = modifier.fillMaxWidth(),
-        leadingIcon = leadingIcon?.let {
-            {
-                IconButton(leadingIconClick) {
-                    Icon(
-                        imageVector = it,
-                        contentDescription = "",
-                        tint = iconsTint ?: MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        },
-        trailingIcon = trailingIcon?.let {
-            {
-                IconButton(trailingIconClick) {
-                    Icon(
-                        imageVector = it,
-                        contentDescription = "",
-                        tint = iconsTint ?: MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        },
-        supportingText = supportingText?.let {
-            {
-                supportingText()
-            }
-        },
-        textStyle = textStyle,
-        shape = MaterialTheme.shapes.medium,
-        colors = TextFieldDefaults.colors(
-            unfocusedIndicatorColor = Color.Transparent,
-            errorIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // LABEL //
+        Text(
+            text = labelText,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = modifier
+                .padding(
+                    start = 12.dp,
+                    bottom = 6.dp
+                )
         )
-    )
+        //TEXT FIELD //
+        OutlinedTextField(
+            value = value,
+            enabled = enabled,
+            singleLine = singleLine,
+            suffix = suffixText?.let {
+                {
+                    Text(it)
+                }
+            },
+            prefix = prefixText?.let {
+                {
+                    Text(it)
+                }
+            },
+            placeholder = placeHolderText?.let {
+                {
+                    Text(it)
+                }
+            },
+            keyboardOptions = keyboardOptions,
+            onValueChange = { onValueChange(it) },
+            modifier = modifier.fillMaxWidth(),
+            leadingIcon = leadingIcon?.let {
+                {
+                    IconButton(leadingIconClick) {
+                        Icon(
+                            imageVector = it,
+                            contentDescription = "",
+                            tint = iconsTint ?: MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            },
+            trailingIcon = trailingIcon?.let {
+                {
+                    IconButton(trailingIconClick) {
+                        Icon(
+                            imageVector = it,
+                            contentDescription = "",
+                            tint = iconsTint ?: MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            },
+            supportingText = supportingText?.let {
+                {
+                    supportingText()
+                }
+            },
+            textStyle = textStyle,
+            shape = MaterialTheme.shapes.medium,
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
+        )
+    }
 }

@@ -135,8 +135,8 @@ fun SalesScreen(
             stock = viewModel.product?.stock ?: 0,
             sheetState = addSheetState,
             onDismiss = { viewModel.setShowAddBottomSheetValue(false) },
-            onInserted = { price, quantity ->
-                viewModel.insertSale(price, quantity)
+            onInserted = { price, quantity, byUnity ->
+                viewModel.insertSale(price, quantity, byUnity)
             }
         )
     }
@@ -291,7 +291,7 @@ fun SaleItem(
                 )
 
                 Text(
-                    text = "Precio: $${formatToUSD(sale.amount.toString())} c/u",
+                    text = "Precio: $${formatToUSD(sale.amount.toString())}" + if (sale.byUnity) " c/u" else "",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Normal

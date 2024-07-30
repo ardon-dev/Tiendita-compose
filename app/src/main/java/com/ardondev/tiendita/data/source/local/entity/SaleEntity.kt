@@ -20,6 +20,7 @@ data class SaleEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long?,
     val amount: Double,
+    val byUnity: Boolean,
     val quantity: Int,
     val total: Double,
     val productId: Long,

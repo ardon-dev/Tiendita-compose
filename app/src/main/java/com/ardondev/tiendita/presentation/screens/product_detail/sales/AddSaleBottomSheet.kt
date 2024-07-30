@@ -1,7 +1,10 @@
 package com.ardondev.tiendita.presentation.screens.product_detail.sales
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -42,7 +46,7 @@ fun AddSaleBottomSheet(
     stock: Int,
     sheetState: SheetState,
     onDismiss: () -> Unit,
-    onInserted: (price: Double, quantity: Int) -> Unit,
+    onInserted: (price: Double, quantity: Int, byUnity: Boolean) -> Unit,
 ) {
 
     ModalBottomSheet(
@@ -76,8 +80,8 @@ fun AddSaleBottomSheet(
                 SaleForm(price = price,
                     stock = stock,
                     modifier = Modifier.fillMaxWidth(),
-                    onInserted = { price, quantity ->
-                        onInserted(price, quantity)
+                    onInserted = { price, quantity, byUnity ->
+                        onInserted(price, quantity, byUnity)
                     },
                     currentQuantity = null
                 )
@@ -92,7 +96,7 @@ fun SaleForm(
     price: Double,
     stock: Int,
     modifier: Modifier,
-    onInserted: (price: Double, quantity: Int) -> Unit,
+    onInserted: (price: Double, quantity: Int, byUnity: Boolean) -> Unit,
     currentQuantity: Int? = null
 ) {
 
@@ -105,26 +109,55 @@ fun SaleForm(
     }
     var quantity by remember { quantityState }
     val newStock = if (currentQuantity != null) (stock + currentQuantity.toInt()) else stock //7
+    var byUnity by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
             .padding(horizontal = 24.dp)
     ) {
 
-        //Price
-        CustomTextField(
-            value = priceState,
-            onValueChange = {
-                priceState = formatToUSD(it.ifEmpty { "1" })
-                validPrice = (priceState.isNotEmpty()) && (priceState.toDouble() > 0.0)
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            labelText = stringResource(R.string.txt_sale_price),
-            singleLine = true,
-            leadingIcon = Icons.Default.AttachMoney,
-            suffixText = "c/u",
-            modifier = modifier
-        )
+        //
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+
+            Box(
+                Modifier.weight(1f)
+            ) {
+                //Price
+                CustomTextField(
+                    value = priceState,
+                    onValueChange = {
+                        priceState = formatToUSD(it.ifEmpty { "1" })
+                        validPrice = (priceState.isNotEmpty()) && (priceState.toDouble() > 0.0)
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    labelText = stringResource(R.string.txt_sale_price),
+                    singleLine = true,
+                    leadingIcon = Icons.Default.AttachMoney,
+                    modifier = modifier
+                )
+            }
+
+            Spacer(Modifier.size(16.dp))
+
+            FilterChip(
+                selected = byUnity,
+                onClick = { byUnity = !byUnity },
+                label = {
+                    Text(
+                        text = "c/u"
+                    )
+                },
+                modifier = Modifier.padding(top = 20.dp)
+            )
+
+
+        }
 
         Spacer(Modifier.size(16.dp))
 
@@ -151,7 +184,7 @@ fun SaleForm(
             enabled = validPrice,
             onClick = {
                 Log.d("TAG", "price: ${priceState}, quantity: ${quantity}")
-                onInserted(priceState.toDouble(), quantity.toInt())
+                onInserted(priceState.toDouble(), quantity.toInt(), byUnity)
             },
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier

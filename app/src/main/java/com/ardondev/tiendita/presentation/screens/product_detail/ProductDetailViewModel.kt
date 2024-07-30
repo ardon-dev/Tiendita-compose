@@ -288,17 +288,18 @@ class ProductDetailViewModel @Inject constructor(
     private val _insertSaleError = MutableLiveData<SingleEvent<Throwable?>>()
     val insertSaleError: LiveData<SingleEvent<Throwable?>> = _insertSaleError
 
-    fun insertSale(price: Double, quantity: Int) {
+    fun insertSale(price: Double, quantity: Int, byUnity: Boolean) {
         viewModelScope.launch {
             loading = true
             val sale = Sale(
                 id = null,
                 amount = price,
                 quantity = quantity,
-                total = (price * quantity),
+                total = if (byUnity) (price * quantity) else price,
                 productId = productId,
                 date = getCurrentDate(),
-                time = getCurrentTime()
+                time = getCurrentTime(),
+                byUnity = byUnity
             )
             val result = insertSaleUseCase(sale)
             if (result.isSuccess) {

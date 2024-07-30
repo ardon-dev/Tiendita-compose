@@ -63,13 +63,14 @@ fun EditSaleBottomSheet(
                     price = sale.amount,
                     stock = stock,
                     modifier = Modifier.fillMaxWidth(),
-                    onInserted = { price, quantity ->
+                    onInserted = { price, quantity, byUnity ->
                         Log.d("TAG2", "price: ${price}, quantity: ${quantity}")
                         onUpdated(
                             sale.copy(
                                 amount = price,
+                                byUnity = byUnity,
                                 quantity = quantity,
-                                total = (price * quantity)
+                                total = if (byUnity) (price * quantity) else price
                             )
                         )
                     },
