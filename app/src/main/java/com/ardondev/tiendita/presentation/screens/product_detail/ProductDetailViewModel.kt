@@ -273,8 +273,8 @@ class ProductDetailViewModel @Inject constructor(
         viewModelScope.launch {
             getTotalOfSalesByProductIdUseCase(productId)
                 .collectLatest { total ->
-                    total?.let {
-                        _totalSales.value = formatToUSD(total.toString())
+                    total.let {
+                        _totalSales.value = formatToUSD(total.toString() ?: "0.00")
                     }
                 }
         }

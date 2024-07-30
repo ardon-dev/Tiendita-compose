@@ -25,11 +25,11 @@ class SaleRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getTotalOfSales(): Flow<Double?> {
+    override fun getTotalOfSales(): Flow<Double> {
         return saleDao.getTotalOfSales()
     }
 
-    override fun getTotalOfSalesByProductId(productId: Long): Flow<Double?> {
+    override fun getTotalOfSalesByProductId(productId: Long): Flow<Double> {
         return saleDao.getTotalOfSalesByProductId(productId)
     }
 

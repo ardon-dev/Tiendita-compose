@@ -79,9 +79,7 @@ class ProductsViewModel @Inject constructor(
     private fun getTotalSales() {
         viewModelScope.launch {
             getTotalOfSalesUseCase().collectLatest { total ->
-                total?.let {
-                    totalSales = formatToUSD(total.toString())
-                }
+                totalSales = formatToUSD(total.toString() ?: "0.00")
             }
         }
     }

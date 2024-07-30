@@ -21,11 +21,11 @@ interface SaleDao {
         endDate: String,
     ): Flow<List<SaleEntity>>
 
-    @Query("SELECT SUM(total) FROM sales")
+    @Query("SELECT COALESCE(SUM(total), 0.0) FROM sales")
     fun getTotalOfSales(): Flow<Double>
 
-    @Query("SELECT SUM(total) FROM sales WHERE productId = :productId")
-    fun getTotalOfSalesByProductId(productId: Long): Flow<Double?>
+    @Query("SELECT COALESCE(SUM(total), 0.0) FROM sales WHERE productId = :productId")
+    fun getTotalOfSalesByProductId(productId: Long): Flow<Double>
 
     @Update
     fun update(sale: SaleEntity): Int

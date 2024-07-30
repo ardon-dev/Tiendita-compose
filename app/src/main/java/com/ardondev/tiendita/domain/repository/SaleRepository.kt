@@ -9,9 +9,9 @@ interface SaleRepository {
 
     fun getAllByProductId(productId: Long, startDate: String, endDate: String): Flow<List<Sale>>
 
-    fun getTotalOfSales(): Flow<Double?>
+    fun getTotalOfSales(): Flow<Double>
 
-    fun getTotalOfSalesByProductId(productId: Long): Flow<Double?>
+    fun getTotalOfSalesByProductId(productId: Long): Flow<Double>
 
     suspend fun update(sale: Sale): Int
 

@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductsScreen(
-    viewModel: ProductsViewModel = hiltViewModel(),
+    viewModel: ProductsViewModel,
     navHostController: NavHostController,
 ) {
 

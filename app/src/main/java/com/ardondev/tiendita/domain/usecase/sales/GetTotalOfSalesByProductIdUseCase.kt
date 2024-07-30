@@ -8,7 +8,7 @@ class GetTotalOfSalesByProductIdUseCase @Inject constructor(
     private val saleRepository: SaleRepository,
 ) {
 
-    operator fun invoke(productId: Long): Flow<Double?> {
+    operator fun invoke(productId: Long): Flow<Double> {
         return saleRepository.getTotalOfSalesByProductId(productId)
     }
 
