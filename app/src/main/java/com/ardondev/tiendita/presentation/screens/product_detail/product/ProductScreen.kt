@@ -100,7 +100,6 @@ fun EditableProductForm(
             ),
             onValueChange = viewModel::setPriceValue,
             leadingIcon = Icons.Rounded.AttachMoney,
-            suffixText = "c/u",
             labelText = stringResource(R.string.txt_price),
             enabled = viewModel.editable,
         )

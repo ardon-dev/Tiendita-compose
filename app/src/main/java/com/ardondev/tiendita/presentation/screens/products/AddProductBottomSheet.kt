@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.ardondev.tiendita.R
 import com.ardondev.tiendita.domain.model.Product
 import com.ardondev.tiendita.presentation.util.CustomTextField
+import com.ardondev.tiendita.presentation.util.DECIMAL_PATTERN
 import com.ardondev.tiendita.presentation.util.formatToUSD
 import com.ardondev.tiendita.presentation.util.getOnlyDigits
 
@@ -168,8 +169,9 @@ fun ProductForm(
                 imeAction = ImeAction.Done
             ),
             onValueChange = { newValue ->
-                val amount = formatToUSD(newValue)
-                priceState = amount
+                if (newValue.matches(DECIMAL_PATTERN)) {
+                    priceState = newValue
+                }
                 validPrice = priceState.isNotEmpty() && (priceState.toDouble()) > 0
             },
             leadingIcon = Icons.Default.AttachMoney,

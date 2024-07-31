@@ -298,7 +298,7 @@ fun ProductItem(
                 )
                 //Product price
                 Text(
-                    text = "Precio unitario: $${formatToUSD(product.price.toString())}",
+                    text = "Precio: $${formatToUSD(product.price.toString())}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

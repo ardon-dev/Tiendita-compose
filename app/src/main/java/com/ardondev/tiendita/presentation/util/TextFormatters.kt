@@ -4,6 +4,8 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 
+val DECIMAL_PATTERN = Regex("^\\d*\\.?\\d{0,2}$")
+
 fun formatToIntNumber(input: String): String {
     return input.replace(Regex("(\\d)(?=(\\d{3})+(?!\\d))"), "$1,")
 }

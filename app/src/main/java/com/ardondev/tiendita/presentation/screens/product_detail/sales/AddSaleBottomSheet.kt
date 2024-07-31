@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ardondev.tiendita.R
 import com.ardondev.tiendita.presentation.util.CustomTextField
+import com.ardondev.tiendita.presentation.util.DECIMAL_PATTERN
 import com.ardondev.tiendita.presentation.util.QuantityControl
 import com.ardondev.tiendita.presentation.util.formatToUSD
 
@@ -131,8 +132,10 @@ fun SaleForm(
                 //Price
                 CustomTextField(
                     value = priceState,
-                    onValueChange = {
-                        priceState = formatToUSD(it.ifEmpty { "1" })
+                    onValueChange = { newValue ->
+                        if (newValue.matches(DECIMAL_PATTERN)) {
+                            priceState = newValue
+                        }
                         validPrice = (priceState.isNotEmpty()) && (priceState.toDouble() > 0.0)
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),

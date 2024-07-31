@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -24,15 +25,18 @@ import com.ardondev.tiendita.domain.usecase.sales.InsertSaleUseCase
 import com.ardondev.tiendita.domain.usecase.sales.UpdateSaleUseCase
 import com.ardondev.tiendita.presentation.screens.product_detail.product.ProductUiState
 import com.ardondev.tiendita.presentation.screens.product_detail.sales.SalesUiState
+import com.ardondev.tiendita.presentation.util.DECIMAL_PATTERN
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import com.ardondev.tiendita.presentation.util.formatToUSD
 import com.ardondev.tiendita.presentation.util.getCurrentDate
 import com.ardondev.tiendita.presentation.util.getCurrentTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -130,6 +134,9 @@ class ProductDetailViewModel @Inject constructor(
     var editable by mutableStateOf(false)
         private set
 
+    private val _error = MutableSharedFlow<String>()
+    val error = _error.asSharedFlow()
+
     fun setEditableValue(value: Boolean) {
         //Make information screen action
         if (tabPosition == 1) {
@@ -137,6 +144,13 @@ class ProductDetailViewModel @Inject constructor(
             if (editable) {
                 fabIcon = Icons.Default.Done
             } else {
+                if (name.isEmpty() || stock.isEmpty() || stock.toInt() < 1 || price.isEmpty() || price.toDouble() < 0.01) {
+                    editable = true
+                    viewModelScope.launch {
+                        _error.emit("Revisa los campos")
+                    }
+                    return
+                }
                 //If content is the same, do not update
                 val currentProduct = Product(productId, name, stock.toInt(), price.toDouble(), null)
                 if (product == currentProduct) {
@@ -152,7 +166,9 @@ class ProductDetailViewModel @Inject constructor(
         //Make sales screen action
         if (tabPosition == 0) {
             if ((product?.stock ?: 0) <= 0) {
-                _insertSaleError.value = SingleEvent(Throwable("No hay productos en Stock"))
+                viewModelScope.launch {
+                    _error.emit("No hay productos en stock.")
+                }
                 return
             }
 
@@ -180,7 +196,9 @@ class ProductDetailViewModel @Inject constructor(
         private set
 
     fun setPriceValue(value: String) {
-        price = formatToUSD(value)
+        if (value.matches(DECIMAL_PATTERN)) {
+            price = value
+        }
     }
 
     /** Update product **/

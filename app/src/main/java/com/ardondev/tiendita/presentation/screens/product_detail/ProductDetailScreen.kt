@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -59,6 +60,7 @@ import com.ardondev.tiendita.presentation.util.MMMM_d
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import com.ardondev.tiendita.presentation.util.formatDate
 import com.ardondev.tiendita.presentation.util.yyyy_MM_dd
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -90,6 +92,12 @@ fun ProductDetailScreen(
 
     LaunchedEffect(productId) {
         viewModel.savedStateHandle["product_id"] = productId
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.error.collectLatest {
+            scope.launch { snackBarHostState.showSnackbar(it) }
+        }
     }
 
     /** Events **/
