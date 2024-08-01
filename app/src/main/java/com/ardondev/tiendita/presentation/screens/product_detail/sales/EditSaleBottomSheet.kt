@@ -74,7 +74,8 @@ fun EditSaleBottomSheet(
                             )
                         )
                     },
-                    currentQuantity = currentQuantity
+                    currentQuantity = currentQuantity,
+                    byUnity = sale.byUnity
                 )
 
             }

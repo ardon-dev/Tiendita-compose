@@ -98,7 +98,8 @@ fun SaleForm(
     stock: Int,
     modifier: Modifier,
     onInserted: (price: Double, quantity: Int, byUnity: Boolean) -> Unit,
-    currentQuantity: Int? = null
+    currentQuantity: Int? = null,
+    byUnity: Boolean? = null
 ) {
 
     var priceState by remember { mutableStateOf(formatToUSD(price.toString())) }
@@ -110,7 +111,7 @@ fun SaleForm(
     }
     var quantity by remember { quantityState }
     val newStock = if (currentQuantity != null) (stock + currentQuantity.toInt()) else stock //7
-    var byUnity by remember { mutableStateOf(false) }
+    var byUnity by remember { mutableStateOf(byUnity ?: false) }
 
     Column(
         modifier = modifier
