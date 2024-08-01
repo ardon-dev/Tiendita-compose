@@ -5,13 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,7 +14,7 @@ import androidx.navigation.navArgument
 import com.ardondev.tiendita.presentation.screens.product_detail.ProductDetailScreen
 import com.ardondev.tiendita.presentation.screens.products.ProductsScreen
 import com.ardondev.tiendita.presentation.screens.products.ProductsViewModel
-import com.ardondev.tiendita.presentation.theme.TienditaTheme
+import com.ardondev.tiendita.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,7 +28,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            TienditaTheme {
+            AppTheme {
 
                 val navHostController = rememberNavController()
 

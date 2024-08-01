@@ -1,5 +1,6 @@
 package com.ardondev.tiendita.presentation.util
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,10 +19,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Remove
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +33,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -123,7 +121,7 @@ fun CustomTextField(
     placeHolderText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     modifier: Modifier = Modifier,
-    textStyle: TextStyle = TextStyle.Default,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     supportingText: (@Composable () -> Unit?)? = null,
     enabled: Boolean = true,
     iconsTint: Color? = null,
@@ -209,7 +207,7 @@ fun IconSelector(
     onClick: (resId: Int) -> Unit,
     enabled: Boolean = true,
     defaultItemResId: Int? = null,
-    scope: CoroutineScope = rememberCoroutineScope()
+    scope: CoroutineScope = rememberCoroutineScope(),
 ) {
 
     var listState = rememberLazyListState()
@@ -236,8 +234,12 @@ fun IconSelector(
         ) { resId ->
             OutlinedCard(
                 shape = CircleShape,
+                border = BorderStroke(
+                    width = 0.dp,
+                    color = Color.Transparent
+                ),
                 colors = CardDefaults.outlinedCardColors(
-                    containerColor = if (selectedItem == resId) MaterialTheme.colorScheme.surface else Color.Transparent
+                    containerColor = if (selectedItem == resId) MaterialTheme.colorScheme.onSurfaceVariant else Color.Transparent
                 ),
                 onClick = {
                     if (enabled) {

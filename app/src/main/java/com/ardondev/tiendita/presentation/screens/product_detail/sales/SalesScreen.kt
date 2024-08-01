@@ -182,7 +182,7 @@ fun SalesList(
         stickyHeader {
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
                 modifier = Modifier.padding(top = 16.dp)
             ) {
@@ -191,8 +191,9 @@ fun SalesList(
                     text = "Ingresos de este día: $$total",
                     modifier = Modifier
                         .padding(16.dp),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
