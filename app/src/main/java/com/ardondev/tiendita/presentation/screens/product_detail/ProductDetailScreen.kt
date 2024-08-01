@@ -107,7 +107,7 @@ fun ProductDetailScreen(
             rows?.let {
                 scope.launch {
                     snackBarHostState.showSnackbar(
-                        if (rows > 0) "Updated" else "Not updated"
+                        if (rows > 0) "Producto actualizado." else "No se actualizó el registro."
                     )
                 }
             }

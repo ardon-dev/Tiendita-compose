@@ -25,6 +25,7 @@ import com.ardondev.tiendita.domain.usecase.sales.InsertSaleUseCase
 import com.ardondev.tiendita.domain.usecase.sales.UpdateSaleUseCase
 import com.ardondev.tiendita.presentation.screens.product_detail.product.ProductUiState
 import com.ardondev.tiendita.presentation.screens.product_detail.sales.SalesUiState
+import com.ardondev.tiendita.presentation.screens.products.icons
 import com.ardondev.tiendita.presentation.util.DECIMAL_PATTERN
 import com.ardondev.tiendita.presentation.util.SingleEvent
 import com.ardondev.tiendita.presentation.util.formatToUSD
@@ -80,6 +81,7 @@ class ProductDetailViewModel @Inject constructor(
         this.name = product.name
         this.stock = product.stock.toString()
         this.price = formatToUSD(product.price.toString())
+        this.icon = product.resId
     }
 
     /** Get product **/
@@ -152,7 +154,7 @@ class ProductDetailViewModel @Inject constructor(
                     return
                 }
                 //If content is the same, do not update
-                val currentProduct = Product(productId, name, stock.toInt(), price.toDouble(), null)
+                val currentProduct = Product(productId, name, stock.toInt(), price.toDouble(), null, icon)
                 if (product == currentProduct) {
                     fabIcon = Icons.Default.Edit
                     return
@@ -199,6 +201,13 @@ class ProductDetailViewModel @Inject constructor(
         if (value.matches(DECIMAL_PATTERN)) {
             price = value
         }
+    }
+
+    var icon by mutableIntStateOf(0)
+        private set
+
+    fun setIconValue(value: Int) {
+        icon = value
     }
 
     /** Update product **/

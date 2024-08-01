@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -22,8 +23,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ardondev.tiendita.R
 import com.ardondev.tiendita.presentation.screens.product_detail.ProductDetailViewModel
+import com.ardondev.tiendita.presentation.screens.products.icons
 import com.ardondev.tiendita.presentation.util.CustomTextField
 import com.ardondev.tiendita.presentation.util.ErrorView
+import com.ardondev.tiendita.presentation.util.IconSelector
 import com.ardondev.tiendita.presentation.util.LoadingView
 
 @Composable
@@ -102,6 +105,27 @@ fun EditableProductForm(
             leadingIcon = Icons.Rounded.AttachMoney,
             labelText = stringResource(R.string.txt_price),
             enabled = viewModel.editable,
+        )
+
+        //Icon
+        Text(
+            text = "Ícono",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = modifier
+                .padding(
+                    start = 12.dp,
+                    bottom = 6.dp,
+                    top = 16.dp
+                )
+        )
+
+        IconSelector(
+            iconsResIds = icons,
+            defaultItemResId = viewModel.icon,
+            enabled = viewModel.editable,
+            onClick = { resId ->
+                viewModel.setIconValue(resId)
+            }
         )
 
     }

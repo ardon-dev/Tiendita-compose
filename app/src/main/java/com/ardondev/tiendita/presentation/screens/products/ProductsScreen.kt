@@ -1,6 +1,7 @@
 package com.ardondev.tiendita.presentation.screens.products
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -275,10 +277,12 @@ fun ProductItem(
         ) {
 
             //Product icon
-            Icon(
-                imageVector = Icons.Rounded.Category,
+            Image(
+                painter = painterResource(product.resId),
                 contentDescription = "",
-                modifier = Modifier.size(40.dp).align(Alignment.CenterVertically)
+                modifier = Modifier
+                    .size(40.dp)
+                    .align(Alignment.CenterVertically)
             )
 
             Column(
@@ -319,9 +323,9 @@ fun ProductItem(
                     modifier = Modifier
                         .fillMaxHeight()
                         .padding(
-                        vertical = 4.dp,
-                        horizontal = 6.dp
-                    )
+                            vertical = 4.dp,
+                            horizontal = 6.dp
+                        )
                 )
             }
 

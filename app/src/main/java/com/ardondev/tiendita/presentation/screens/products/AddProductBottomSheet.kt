@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,6 +39,7 @@ import com.ardondev.tiendita.R
 import com.ardondev.tiendita.domain.model.Product
 import com.ardondev.tiendita.presentation.util.CustomTextField
 import com.ardondev.tiendita.presentation.util.DECIMAL_PATTERN
+import com.ardondev.tiendita.presentation.util.IconSelector
 import com.ardondev.tiendita.presentation.util.formatToUSD
 import com.ardondev.tiendita.presentation.util.getOnlyDigits
 
@@ -103,6 +105,9 @@ fun ProductForm(
     var validStock by remember { mutableStateOf(false) }
     var priceState by remember { mutableStateOf("") }
     var validPrice by remember { mutableStateOf(false) }
+    var iconResId by remember {
+        mutableIntStateOf(icons[0])
+    }
 
     Column(
         modifier = modifier
@@ -178,6 +183,25 @@ fun ProductForm(
             labelText = "Precio"
         )
 
+        //Icon
+        Text(
+            text = "Ícono",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = modifier
+                .padding(
+                    start = 12.dp,
+                    bottom = 6.dp,
+                    top = 16.dp
+                )
+        )
+
+        IconSelector(
+            iconsResIds = icons,
+            onClick = { resId ->
+                iconResId = resId
+            }
+        )
+
         //Button
         Button(
             enabled = validName && validStock && validPrice,
@@ -191,7 +215,8 @@ fun ProductForm(
                     name = nameState,
                     price = priceState.toDouble(),
                     stock = stockState.toInt(),
-                    totalSales = null
+                    totalSales = null,
+                    resId = iconResId
                 )
                 onInserted(product)
             }
@@ -202,5 +227,21 @@ fun ProductForm(
     }
 
 }
+
+val icons = listOf(
+    R.drawable.ic_candy,
+    R.drawable.ic_chocolate,
+    R.drawable.ic_cookies,
+    R.drawable.ic_cup_cake,
+    R.drawable.ic_donuts,
+    R.drawable.ic_gummy,
+    R.drawable.ic_gummy_bear,
+    R.drawable.ic_ice_cream,
+    R.drawable.ic_ice_cream_stick,
+    R.drawable.ic_ice_cream_stick_2,
+    R.drawable.ic_lollipop,
+    R.drawable.ic_lollipop_2,
+    R.drawable.ic_lollipop_3,
+)
 
 

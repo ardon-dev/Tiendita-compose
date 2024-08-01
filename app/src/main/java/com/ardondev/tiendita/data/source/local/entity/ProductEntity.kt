@@ -10,5 +10,6 @@ data class ProductEntity(
     val name: String,
     val stock: Int,
     val price: Double,
-    val totalSales: Double?
+    val totalSales: Double?,
+    val resId: Int
 )
