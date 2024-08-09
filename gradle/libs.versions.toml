@@ -15,6 +15,11 @@ room = "2.6.1"
 navigation = "2.6.0"
 hiltNavigationCompose = "1.0.0"
 uiTextGoogleFonts = "1.6.8"
+mockito = "5.12.0"
+mockitoKotlin = "5.4.0"
+robolectric = "4.13"
+junitKtx = "1.2.1"
+coroutinesTest = "1.8.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +45,11 @@ androidx-room-compiler = { group = "androidx.room", name  = "room-compiler", ver
 androidx-room-extensions = { group = "androidx.room", name  = "room-ktx", version.ref = "room" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin"}
+robolectric = { group = "org.robolectric", name  = "robolectric", version.ref = "robolectric"}
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
+coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
