@@ -60,16 +60,16 @@ class InsertProductUseCaseTest {
     @Test
     fun `insertProduct with existing id should return failed result with SQL Exception`() =
         runBlocking {
-            //When
+            //Given
             val firstProduct = createTestProduct(id = 1L)
             val secondProduct = createTestProduct(id = 1L)
 
-            //Then
+            //When
             val firstProductId = insertProductUseCase.invoke(firstProduct).getOrNull()
             Log.d("InsertProductUseCaseTest", "First product id: $firstProductId")
             val result = insertProductUseCase.invoke(secondProduct)
 
-            //Assert
+            //Then
             assertTrue(result.isFailure)
             assertTrue(result.exceptionOrNull() is SQLiteConstraintException)
         }
@@ -77,17 +77,17 @@ class InsertProductUseCaseTest {
     @Test
     fun `insertProduct with another id should return success result`() =
         runBlocking {
-            //When
+            //Given
             val firstProduct = createTestProduct(id = 1L)
             val secondProduct = createTestProduct(id = 2L)
             val expected = 2L
 
-            //Then
+            //When
             val firstProductId = insertProductUseCase.invoke(firstProduct).getOrNull()
             Log.d("InsertProductUseCaseTest", "First product id: $firstProductId")
             val result = insertProductUseCase.invoke(secondProduct)
 
-            //Assert
+            //Then
             assertTrue(result.isSuccess)
             assertEquals(result.getOrNull(), expected)
         }
