@@ -19,6 +19,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
 class InsertSaleUseCaseTest {
@@ -107,8 +108,8 @@ class InsertSaleUseCaseTest {
     @Test
     fun `insert sale with quantity above product stock should fail and returns illegal exception`() = runTest {
         //Given
-        val quantity = stock.minus(1) //For quantity minor or equal than stock case (should not pass)
-        //val quantity = stock.plus(1) //For quantity more than stock case
+        //val quantity = stock.minus(1) //For quantity minor or equal than stock case (should not pass)
+        val quantity = stock.plus(1) //For quantity more than stock case
         val sale = createTestSale(id = saleId, productId = productId, quantity = quantity)
 
         //When
@@ -118,6 +119,39 @@ class InsertSaleUseCaseTest {
         val msg = "Result: $result"
         assertTrue(msg, result.isFailure)
         assertTrue(result.exceptionOrNull() is IllegalArgumentException)
+    }
+
+    @Test
+    fun `insert sale with non existing product id should fail and returns sqlite exception`() = runTest {
+        //Given
+        val quantity = stock.minus(1)
+        val nonExistingProductId = 2L
+        val sale = createTestSale(id = saleId, productId = nonExistingProductId, quantity = quantity)
+
+        //When
+        val result = insertSaleUseCaseTest(sale)
+
+        //Then
+        val msg = "Result: $result"
+        assertTrue(msg, result.isFailure)
+        assertTrue(result.exceptionOrNull() is SQLiteConstraintException)
+    }
+
+    @Test
+    fun `insert sale with existing id should fail and returns sqlite exception`() = runTest {
+        //Given
+        val firstSale = createTestSale(id = saleId, productId = productId)
+        val secondSale = createTestSale(id = saleId, productId = productId)
+
+        //When
+        insertSaleUseCaseTest(firstSale)
+        val result = insertSaleUseCaseTest(secondSale)
+
+        //Then
+        val msg = "Result: $result"
+        assertTrue(msg, result.isFailure)
+        assertTrue(result.exceptionOrNull() is SQLiteConstraintException)
+
     }
 
 }
