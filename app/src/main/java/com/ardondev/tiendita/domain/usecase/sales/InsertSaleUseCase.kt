@@ -16,11 +16,7 @@ class InsertSaleUseCase @Inject constructor(
         try {
             //Insert sale
             val result = saleRepository.insert(sale)
-            //Update product stock
-            productRepository.decreaseStock(
-                productId = sale.productId,
-                quantity = sale.quantity
-            )
+            decreaseProductStock(sale)
             //Return inserted sale id
             return Result.success(result)
         } catch (e: IOException) {
@@ -29,6 +25,16 @@ class InsertSaleUseCase @Inject constructor(
             return Result.failure(e)
         } catch (e: Exception) {
             return Result.failure(e)
+        }
+    }
+
+    private suspend fun decreaseProductStock(sale: Sale) {
+        val rowsAffected = productRepository.decreaseStock(
+            productId = sale.productId,
+            quantity = sale.quantity
+        )
+        if (rowsAffected == 0) {
+            throw IllegalArgumentException("Quantity value could not be more than product stock value")
         }
     }
 
